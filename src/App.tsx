@@ -6,6 +6,7 @@ import {
   type GamePlan,
 } from "./data/plans";
 import { supabase, isSupabaseConfigured } from "./lib/supabase";
+import { downloadPlanMd } from "./lib/fullPlanMd";
 import Login from "./Login";
 
 function MilestoneTable({ plan }: { plan: GamePlan }) {
@@ -63,6 +64,11 @@ function PlanCard({ plan }: { plan: GamePlan }) {
           <MilestoneTable plan={plan} />
         </div>
       )}
+      <div className="card-actions">
+        <button className="md-btn" onClick={() => downloadPlanMd(plan)}>
+          Full Plan (MD)
+        </button>
+      </div>
     </article>
   );
 }
@@ -194,6 +200,7 @@ type DbRow = {
   audience: string | null;
   monetization: string | null;
   work_plan: { name: string; tasks: string[]; duration: string; dependencies?: string }[];
+  priority_rank: number | null;
 };
 
 function toGamePlan(r: DbRow): GamePlan {
@@ -250,13 +257,19 @@ export default function App() {
     if (!supabase || !authed) return;
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("mgwp_plans")
-        .select("*")
-        .order("priority_rank", { ascending: true, nullsFirst: false })
-        .order("title", { ascending: true });
+      const { data, error } = await supabase.from("mgwp_plans").select("*");
       if (!cancelled && !error && data && data.length) {
-        setPlans(data.map(toGamePlan));
+        const rows = data as DbRow[];
+        // Deterministic client-side sort: priority first (rank asc), then nulls by title.
+        const sorted = [...rows].sort((a, b) => {
+          const ra = a.priority_rank;
+          const rb = b.priority_rank;
+          if (ra == null && rb != null) return 1;
+          if (ra != null && rb == null) return -1;
+          if (ra != null && rb != null && ra !== rb) return ra - rb;
+          return (a.title ?? "").localeCompare(b.title ?? "");
+        });
+        setPlans(sorted.map(toGamePlan));
         setDbMode(true);
       }
     })();

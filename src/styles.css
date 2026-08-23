@@ -508,3 +508,27 @@ h1 {
   opacity: 0.6;
   cursor: default;
 }
+
+/* Full Plan (MD) button */
+.card-actions {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.md-btn {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.md-btn:hover {
+  border-color: var(--accent);
+  background: var(--panel);
+}
