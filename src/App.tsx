@@ -1,5 +1,12 @@
-import { useMemo, useState } from "react";
-import { gamePlans, priorityList, firstProject, type GamePlan } from "./data/plans";
+import { useEffect, useMemo, useState } from "react";
+import {
+  gamePlans as fallbackPlans,
+  priorityList,
+  firstProject,
+  type GamePlan,
+} from "./data/plans";
+import { supabase, isSupabaseConfigured } from "./lib/supabase";
+import Login from "./Login";
 
 function MilestoneTable({ plan }: { plan: GamePlan }) {
   return (
@@ -60,18 +67,26 @@ function PlanCard({ plan }: { plan: GamePlan }) {
   );
 }
 
-export default function App() {
+function Dashboard({
+  plans,
+  dbMode,
+  onSignOut,
+}: {
+  plans: GamePlan[];
+  dbMode: boolean;
+  onSignOut: () => void;
+}) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return gamePlans;
-    return gamePlans.filter(
+    if (!q) return plans;
+    return plans.filter(
       (p) =>
         p.title.toLowerCase().includes(q) ||
         p.genre.toLowerCase().includes(q) ||
         p.coreGameplay.toLowerCase().includes(q)
     );
-  }, [query]);
+  }, [query, plans]);
 
   return (
     <div className="shell">
@@ -83,12 +98,20 @@ export default function App() {
               Planning-only work plans for 15 mobile game concepts · MaximoSEO
             </p>
           </div>
-          <input
-            className="search"
-            placeholder="Search ideas…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <div className="header-actions">
+            <input
+              className="search"
+              placeholder="Search ideas…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <button className="signout-btn" onClick={onSignOut}>
+              Sign out
+            </button>
+          </div>
+        </div>
+        <div className="source-badge" title="Data source">
+          {dbMode ? "● Database-backed (Supabase)" : "○ Static fallback"}
         </div>
       </header>
 
@@ -143,7 +166,7 @@ export default function App() {
           <h2>
             All 15 Work Plans{" "}
             <span className="count">
-              {filtered.length}/{gamePlans.length}
+              {filtered.length}/{plans.length}
             </span>
           </h2>
           <div className="grid">
@@ -159,4 +182,107 @@ export default function App() {
       </footer>
     </div>
   );
+}
+
+// Map a snake_case Supabase row back to the camelCase GamePlan shape.
+type DbRow = {
+  id: string;
+  title: string;
+  genre: string | null;
+  core_gameplay: string | null;
+  features: string[];
+  audience: string | null;
+  monetization: string | null;
+  work_plan: { name: string; tasks: string[]; duration: string; dependencies?: string }[];
+};
+
+function toGamePlan(r: DbRow): GamePlan {
+  return {
+    id: r.id,
+    title: r.title,
+    genre: r.genre ?? "",
+    coreGameplay: r.core_gameplay ?? "",
+    features: r.features ?? [],
+    audience: r.audience ?? "",
+    monetization: r.monetization ?? "",
+    workPlan: (r.work_plan ?? []).map((m) => ({
+      name: m.name,
+      tasks: m.tasks ?? [],
+      duration: m.duration,
+      dependencies: m.dependencies,
+    })),
+  };
+}
+
+export default function App() {
+  const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
+  const [plans, setPlans] = useState<GamePlan[]>(fallbackPlans);
+  const [dbMode, setDbMode] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) {
+      // No backend configured: show the dashboard unlocked with static data.
+      setLoading(false);
+      setAuthed(true);
+      return;
+    }
+
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setAuthed(Boolean(data.session));
+        setLoading(false);
+      }
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) setAuthed(Boolean(session));
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!supabase || !authed) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("mgwp_plans")
+        .select("*")
+        .order("priority_rank", { ascending: true, nullsFirst: false })
+        .order("title", { ascending: true });
+      if (!cancelled && !error && data && data.length) {
+        setPlans(data.map(toGamePlan));
+        setDbMode(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authed]);
+
+  async function handleSignOut() {
+    if (supabase) await supabase.auth.signOut();
+    setAuthed(false);
+  }
+
+  if (loading) {
+    return (
+      <div className="shell">
+        <main className="loader-wrap">
+          <span className="loader" />
+        </main>
+      </div>
+    );
+  }
+
+  if (!authed) {
+    return <Login />;
+  }
+
+  return <Dashboard plans={plans} dbMode={dbMode} onSignOut={handleSignOut} />;
 }
