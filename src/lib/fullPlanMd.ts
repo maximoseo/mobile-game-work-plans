@@ -4,31 +4,66 @@ import type { GamePlan } from "../data/plans";
 // These are recommendations a bot can follow or override.
 const GENRE_DEFAULTS: Record<
   string,
-  { art: string; stack: string; mechanics: string; entities: string[] }
+  {
+    art: string;
+    stack: string;
+    mechanics: string;
+    entities: string[];
+    summer: string[];
+    ui: string[];
+  }
 > = {
   Idle: {
     art: "Clean 2D, flat vector UI with juicy micro-animations; bright accent palette on dark surfaces; heavy use of tween/easing for satisfying taps.",
     stack: "React Native (TypeScript) + Reanimated, or Unity/C# for cross-platform; SQLite/local storage for offline progress.",
     mechanics: "Tap/click loop → earn currency → spend on upgrades → prestige/reset for multipliers. Tuning knobs: base income, upgrade cost curve (exponential), prestige multiplier.",
     entities: ["Player (currency, level, upgrades)", "Upgrade (id, cost, effect)", "PrestigeRun (multiplier, count)"],
+    summer: [
+      "`Root` → `Game` (logic) → `UI` (HUD) → `Background` (parallax). UI-driven; minimal physics.",
+      "Assets: tap button sprite, currency icons, upgrade icons, background art, 1–2 UI fonts, tap/coin SFX.",
+      "Loop: create project → place `Game` + `UI` scenes → wire tap → run → inspect errors → tune income/upgrade curves → run again.",
+      "MCP tools: create scene, place object, run project, read diagnostics, edit property (tuning knobs).",
+    ],
+    ui: ["Button", "Card", "Progress", "Dialog", "Sheet", "Toast", "Badge", "Tabs"],
   },
   Puzzle: {
     art: "Minimal 2D, high-contrast shapes, satisfying color pops on match; subtle particles on solve.",
     stack: "Unity/C# or Godot/GDScript; grid logic in pure code, no physics needed.",
     mechanics: "Board/grid interaction → match/merge/clear → score + level progression. Tuning: move limits, combo multipliers, level difficulty curve.",
     entities: ["Board (grid, cells)", "Piece (type, state)", "Level (layout, goals)", "Score (combo, stars)"],
+    summer: [
+      "`Root` → `Board` (grid) → `Piece` (instances) → `UI` (score/moves) → `FX` (particles).",
+      "Assets: piece sprites (per type), board background, level thumbnails, solve/win SFX.",
+      "Loop: create project → place `Board` → spawn `Piece` grid → run → inspect → tune move limits/combos → run again.",
+      "MCP tools: create scene, place object, run project, read diagnostics, edit property.",
+    ],
+    ui: ["Card", "Progress", "Dialog", "Toast", "Badge", "Button"],
   },
   Strategy: {
     art: "Isometric or top-down 2D, readable unit silhouettes, faction color-coding.",
     stack: "Unity/C# or Godot/GDScript; deterministic simulation for replayability.",
     mechanics: "Place/build → resource economy → unit combat → territory/objective control. Tuning: unit stats, resource rates, AI difficulty.",
     entities: ["Unit (stats, owner)", "Building (cost, output)", "Resource (type, amount)", "Map (tiles, ownership)"],
+    summer: [
+      "`Root` → `Map` (tiles) → `Unit` (instances) → `Building` (instances) → `UI` (resources/minimap).",
+      "Assets: unit sprites (per faction), building sprites, tile art, resource icons, combat SFX.",
+      "Loop: create project → place `Map` → spawn units/buildings → run → inspect → tune unit stats/resource rates → run again.",
+      "MCP tools: create scene, place object, run project, read diagnostics, edit property.",
+    ],
+    ui: ["Card", "Tabs", "Progress", "Tooltip", "Dialog", "Badge", "Button"],
   },
   Roguelike: {
     art: "Pixel-art 2D, procedural tile variety, high readability for fast action.",
     stack: "Godot/GDScript or Unity/C#; seeded RNG for runs; JSON for item/room definitions.",
     mechanics: "Enter room → fight/collect → choose upgrade → die/retry with meta-progression. Tuning: enemy HP scaling, upgrade pool, run length.",
     entities: ["Player (hp, loadout)", "Room (type, enemies)", "Item (rarity, effect)", "Run (seed, floor)"],
+    summer: [
+      "`Root` → `Player` → `Room` (procedural) → `Enemy` (instances) → `Item` (instances) → `UI` (hp/inventory).",
+      "Assets: player sprite, enemy sprites, room tiles, item icons, hit/pickup SFX.",
+      "Loop: create project → place `Player` + `Room` → spawn enemies/items → run → inspect → tune enemy HP/upgrade pool → run again.",
+      "MCP tools: create scene, place object, run project, read diagnostics, edit property.",
+    ],
+    ui: ["Card", "Dialog", "Progress", "Badge", "Button", "Toast"],
   },
 };
 
@@ -37,6 +72,13 @@ const FALLBACK = {
   stack: "Unity/C# or Godot/GDScript for cross-platform mobile; JSON/config-driven content.",
   mechanics: "Core loop → reward → progression → retention hook. Tuning knobs documented per feature.",
   entities: ["Player (state, progression)", "Session (run/level state)", "Config (tunable values)"],
+  summer: [
+    "`Root` → `Game` (logic) → `Entities` → `UI` (HUD) → `Background`.",
+    "Assets: core sprites, icons, background, font, SFX.",
+    "Loop: create project → place scenes → run → inspect errors → tune → run again.",
+    "MCP tools: create scene, place object, run project, read diagnostics, edit property.",
+  ],
+  ui: ["Button", "Card", "Progress", "Dialog", "Toast", "Badge"],
 };
 
 function pickGenre(genre: string) {
@@ -161,6 +203,35 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("- Tutorial completion ≥ 80%.");
   L.push("- Crash-free sessions ≥ 99.5%.");
   L.push("- (Optional) D30 ARPDAU positive vs. UA cost.");
+  L.push("");
+
+  L.push("## 14. Summer Engine Build Guide");
+  L.push("");
+  L.push("> Target engine: **Summer Engine** — a desktop game engine the agent operates via its MCP (58 tools) + CLI. Free for MCP use.");
+  L.push("");
+  L.push("**Scene tree**");
+  for (const line of d.summer) L.push(`- ${line}`);
+  L.push("");
+  L.push("**Toolchain**");
+  L.push("- Install the `summer-engine` CLI; it signs you in and writes MCP config for Claude Code / Cursor / Codex.");
+  L.push("- The agent then: create project → place scenes/objects → run → inspect diagnostics → iterate until the core loop is playable.");
+  L.push("");
+
+  L.push("## 15. 21st.dev UI Component Spec");
+  L.push("");
+  L.push("> UI layer: pull production-ready React/shadcn components from **21st.dev** (MCP 35 tools + Magic builder).");
+  L.push("");
+  L.push("**Components to pull**");
+  for (const c of d.ui) L.push(`- ${c}`);
+  L.push("");
+  L.push("**How**");
+  L.push("- Use the 21st MCP `get_component` (by id) or the Magic builder to fetch and insert each component.");
+  L.push("- Keep the game's UI in a web/React layer (menus, HUD, settings, dialogs) rendered over the engine view.");
+  L.push("");
+
+  L.push("## 16. Engine Alternatives");
+  L.push("");
+  L.push("- **Godot (open-source):** if you prefer a fully open 2D/3D engine, this plan maps 1:1 to Godot/GDScript — the scene tree and entity model carry over directly; use Godot's built-in Control nodes for UI instead of 21st.dev React components.");
   L.push("");
 
   L.push("---");
