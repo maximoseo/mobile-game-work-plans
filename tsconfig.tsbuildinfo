@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/Login.tsx","./src/PasswordInput.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/data/plans.ts","./src/lib/fullPlanMd.ts","./src/lib/supabase.ts"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/Login.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/data/plans.ts","./src/lib/fullPlanMd.ts","./src/lib/supabase.ts"],"version":"5.9.3"}

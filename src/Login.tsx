@@ -1,8 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { supabase } from "./lib/supabase";
 
-import { PasswordInput } from "./PasswordInput";
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,18 +39,17 @@ export default function Login() {
             />
           </label>
 
-          {/* div, not label: the show/hide button must not be nested inside a label */}
-          <div className="field">
-            <label htmlFor="login-password">Password</label>
-            <PasswordInput
-              id="login-password"
+          <label className="field">
+            <span>Password</span>
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••"
               autoComplete="current-password"
               required
             />
-          </div>
+          </label>
 
           {error && <div className="login-error">{error}</div>}
 
