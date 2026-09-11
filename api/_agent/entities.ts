@@ -74,6 +74,8 @@ export type EntitySpec = {
   filters?: string[];
   /** soft-delete guard: columns that must be NULL on every row returned, e.g. ["deleted_at"] */
   isNull?: string[];
+  /** fixed equality predicates applied to every query (list, get, search, stats) — ownership scope the caller cannot widen, e.g. { kind: "ca_single" } */
+  where?: Record<string, string | number | boolean>;
   /** columns to count by in <entity>_stats, e.g. ["status"] */
   groupBy?: string[];
   maxLimit?: number;
@@ -94,7 +96,11 @@ export function entityRoutes(db: () => Db, spec: EntitySpec): Route[] {
   const orderCol = spec.orderBy ?? "created_at";
   const base = `${spec.pathPrefix ?? ""}/${spec.entity}`;
   const want = new Set(spec.only ?? ["list", "get", "search", "stats"]);
-  const guard = (q: Q): Q => (spec.isNull ?? []).reduce((acc, c) => acc.is(c, null), q);
+  const guard = (q: Q): Q => {
+    let g = (spec.isNull ?? []).reduce((acc, c) => acc.is(c, null), q);
+    for (const [c, v] of Object.entries(spec.where ?? {})) g = g.eq(c, v);
+    return g;
+  };
   // "col" or "col:boolean|integer|number" — the type drives validation and coercion, so an agent can pass true / 5
   const filterSpecs = (spec.filters ?? []).map((f) => {
     const [name, t] = f.split(":");

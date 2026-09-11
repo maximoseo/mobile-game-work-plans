@@ -25,7 +25,7 @@ class Query implements PromiseLike<Result> {
   eq(col: string, v: unknown) { this.params.push(`${col}=eq.${encodeURIComponent(String(v))}`); return this; }
   is(col: string, v: null | boolean) { this.params.push(`${col}=is.${v === null ? "null" : String(v)}`); return this; }
   ilike(col: string, v: string) { this.params.push(`${col}=ilike.${encodeURIComponent(v)}`); return this; }
-  or(f: string) { this.params.push(`or=(${encodeURIComponent(f).replace(/%2C/g, ",").replace(/%25/g, "%")})`); return this; }
+  or(f: string) { this.params.push(`or=(${encodeURIComponent(f).replace(/%2C/g, ",")})`); return this; } // keep %25: a raw % in the query string is a 500 at the edge
   order(col: string, opts?: { ascending?: boolean; nullsFirst?: boolean }) {
     this.params.push(`order=${col}.${opts?.ascending ? "asc" : "desc"}.${opts?.nullsFirst ? "nullsfirst" : "nullslast"}`);
     return this;

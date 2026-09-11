@@ -3,7 +3,7 @@ import { APP, routes } from "./_agent/routes.js";
 
 // Agent surface — REST (Vercel Function, Web handler signature).
 // Every operation comes from api/_agent/routes.ts; the same table generates
-// /api/openapi.json and the MCP tools at /api/mcp.
+// /api/openapi.json and the MCP tools (APP.mcpPath, default /api/mcp).
 function handler(req: Request): Promise<Response> {
   // vercel.json rewrites /api/v1/:path* → /api/v1?path=:path* (a [...path] function only
   // matched one segment on Vercel). Take the sub path from that param, drop it before
