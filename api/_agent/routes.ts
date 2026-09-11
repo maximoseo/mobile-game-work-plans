@@ -24,7 +24,9 @@ const need = (name: string) => {
   if (!v) throw new RouteError(503, "not_configured", `${name} is not set`);
   return v;
 };
-const db = () => postgrestDb(() => need("VITE_SUPABASE_URL"), () => need("VITE_SUPABASE_ANON_KEY"));
+// mgwp_plans is RLS-limited to authenticated users (the UI reads as a signed-in user); the surface reads
+// server-side with the service role, never the anon key (anon sees 0 rows)
+const db = () => postgrestDb(() => need("VITE_SUPABASE_URL"), () => need("SUPABASE_SERVICE_ROLE_KEY"));
 
 export const routes: Route[] = [
   ...entityRoutes(db, { entity: "plans", table: "mgwp_plans", summary: "game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank)", orderBy: "priority_rank", ascending: true, searchColumns: ["title", "genre", "core_gameplay"], filters: ["genre"], groupBy: ["genre"] }),
