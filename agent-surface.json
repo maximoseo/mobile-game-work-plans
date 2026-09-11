@@ -1,0 +1,59 @@
+{
+  "$schema": "https://maximo-seo.ai/schemas/agent-surface-v1.json",
+  "id": "mobile-game-work-plans",
+  "name": "Mobile Game Work Plans",
+  "hosts": [
+    "mobile-game-work-plans.maximo-seo.ai"
+  ],
+  "openapi": "https://mobile-game-work-plans.maximo-seo.ai/api/openapi.json",
+  "mcp": "https://mobile-game-work-plans.maximo-seo.ai/api/mcp",
+  "rest": "https://mobile-game-work-plans.maximo-seo.ai/api/v1",
+  "health": "https://mobile-game-work-plans.maximo-seo.ai/api/v1/health",
+  "auth": {
+    "env": "AGENT_API_KEY",
+    "header": "Authorization: Bearer <key>",
+    "alt_header": "x-api-key",
+    "secondary_env": "DASHBOARD_AGENT_API_KEY (accepted when set — parallel rollout of 2026-09-11)"
+  },
+  "rate_limit": "60/min per key (per instance)",
+  "surface": "v1",
+  "tools": [
+    {
+      "name": "health",
+      "method": "GET",
+      "path": "/api/v1/health",
+      "summary": "Health of the Mobile Game Work Plans agent surface: ok, git sha, tool count.",
+      "write": false
+    },
+    {
+      "name": "list_plans",
+      "method": "GET",
+      "path": "/api/v1/plans",
+      "summary": "List game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank) (ordered by priority_rank ascending, paginated).",
+      "write": false
+    },
+    {
+      "name": "get_plans",
+      "method": "GET",
+      "path": "/api/v1/plans/{id}",
+      "summary": "Get one of game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank) by id.",
+      "write": false
+    },
+    {
+      "name": "search_plans",
+      "method": "GET",
+      "path": "/api/v1/plans/search",
+      "summary": "Search game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank) by text (title, genre, core_gameplay).",
+      "write": false
+    },
+    {
+      "name": "plans_stats",
+      "method": "GET",
+      "path": "/api/v1/plans/stats",
+      "summary": "Counts for game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank) by genre.",
+      "write": false
+    }
+  ],
+  "write_tools": [],
+  "tool_count": 5
+}
