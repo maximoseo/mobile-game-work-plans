@@ -1,5 +1,6 @@
 import { entityRoutes } from "./entities.js";
 import { postgrestDb } from "./postgrest.js";
+import { RouteError } from "./types.js";
 import type { AppInfo, Route } from "./types.js";
 
 /**
@@ -17,7 +18,13 @@ export const APP: AppInfo = {
   description: "Mobile game concepts and their work plans, ranked by priority.",
 };
 
-const db = () => postgrestDb(() => process.env.VITE_SUPABASE_URL ?? "", () => process.env.VITE_SUPABASE_ANON_KEY ?? "");
+// same env the SPA is built with; unset → explicit 503 instead of a relative URL reaching fetch
+const need = (name: string) => {
+  const v = process.env[name] ?? "";
+  if (!v) throw new RouteError(503, "not_configured", `${name} is not set`);
+  return v;
+};
+const db = () => postgrestDb(() => need("VITE_SUPABASE_URL"), () => need("VITE_SUPABASE_ANON_KEY"));
 
 export const routes: Route[] = [
   ...entityRoutes(db, { entity: "plans", table: "mgwp_plans", summary: "game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank)", orderBy: "priority_rank", ascending: true, searchColumns: ["title", "genre", "core_gameplay"], filters: ["genre"], groupBy: ["genre"] }),
