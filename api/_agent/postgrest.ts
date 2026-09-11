@@ -40,9 +40,15 @@ class Query implements PromiseLike<Result> {
     if (this.wantCount) prefer.push("count=exact");
     if (prefer.length) headers.Prefer = prefer.join(",");
     if (this.rng) headers.Range = `${this.rng[0]}-${this.rng[1]}`;
-    if (this.head) headers.Range = "0-0";
-    const res = await fetch(url, { headers, cache: "no-store" });
-    if (!res.ok && res.status !== 206) return { data: null, error: { message: `postgrest ${res.status}` } };
+    // head: count only — HEAD carries Content-Range without a body
+    let res: Response;
+    try {
+      // bounded: a hung PostgREST must not pin a serverless invocation until the platform kills it
+      res = await fetch(url, { method: this.head ? "HEAD" : "GET", headers, cache: "no-store", signal: AbortSignal.timeout(20_000) });
+    } catch (e) {
+      return { data: null, error: { message: e instanceof Error && e.name === "TimeoutError" ? "postgrest timeout" : "postgrest unreachable" } };
+    }
+    if (!res.ok) return { data: null, error: { message: `postgrest ${res.status}` } };
     const cr = res.headers.get("content-range") ?? "";
     const m = /\/(\d+|\*)$/.exec(cr);
     const count = m && m[1] !== "*" ? Number(m[1]) : null;

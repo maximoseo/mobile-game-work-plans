@@ -31,7 +31,7 @@ export type Db = { from: (table: string) => Q };
 // Secret-ish column names by segment (split on _ - space / camelCase): a column is withheld when a
 // segment is a secret word or a known pair (api key, private key, client secret, refresh token, app password,
 // auth header, webhook url). Metrics like tokens_in / total_tokens / content_hash / session_id stay visible.
-const SECRET_WORDS = new Set(["token", "secret", "password", "passwd", "apikey", "credential", "credentials", "cookie", "salt", "bearer", "dsn", "ssh", "encrypted", "jwt"]);
+const SECRET_WORDS = new Set(["token", "secret", "password", "passwd", "apikey", "credential", "credentials", "cookie", "salt", "bearer", "dsn", "ssh", "encrypted", "jwt", "authorization"]);
 const SECRET_PAIRS = new Set(["api key", "private key", "client secret", "refresh token", "access token", "app password", "auth header", "webhook url", "signing key", "service key", "service role"]);
 // "<something>_key" is a credential (openrouter_key, bing_key, service_key…) unless the prefix is one of these non-secret senses
 const SAFE_KEY_PREFIX = new Set(["kpi", "idempotency", "commit", "metric", "primary", "foreign", "sort", "cache", "finding", "row", "step", "event", "group", "partition", "translation", "i18n", "lookup", "dedupe", "dedup", "cursor", "page", "map", "column", "field", "prompt", "template", "feature", "flag", "config", "setting", "locale"]);
@@ -39,18 +39,24 @@ export function isSecretColumn(name: string): boolean {
   const segs = name.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
   if (segs.some((w) => SECRET_WORDS.has(w))) return true;
   for (let i = 0; i + 1 < segs.length; i++) if (SECRET_PAIRS.has(`${segs[i]} ${segs[i + 1]}`)) return true;
-  if (segs.length > 1 && segs[segs.length - 1] === "key" && !SAFE_KEY_PREFIX.has(segs[segs.length - 2])) return true;
+  // "<something>_key" anywhere in the name (openrouter_key, bing_key_id, service_key_hash…) is a credential
+  // unless the prefix is one of the non-secret senses above
+  for (let i = 1; i < segs.length; i++) if (segs[i] === "key" && !SAFE_KEY_PREFIX.has(segs[i - 1])) return true;
   return false;
 }
 /** kept for callers that test a key name; prefer isSecretColumn() */
 export const SECRET_COLUMN = { test: isSecretColumn };
 
 export function redact<T>(row: T): T {
+  return redactKeeping(row, undefined);
+}
+/** keep: top-level column names an entity declares non-secret (e.g. `token_usage` is a metric) — the heuristic still applies to nested objects */
+export function redactKeeping<T>(row: T, keep: readonly string[] | undefined): T {
   if (!row || typeof row !== "object") return row;
-  if (Array.isArray(row)) return row.map((v) => redact(v)) as unknown as T;
+  if (Array.isArray(row)) return row.map((v) => redactKeeping(v, keep)) as unknown as T;
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(row as Record<string, unknown>)) {
-    if (isSecretColumn(k)) continue;
+    if (isSecretColumn(k) && !keep?.includes(k)) continue;
     out[k] = v && typeof v === "object" ? redact(v) : v;
   }
   return out as T;
@@ -83,6 +89,8 @@ export type EntitySpec = {
   only?: ("list" | "get" | "search" | "stats")[];
   /** post-process rows (after redact) */
   map?: (row: Record<string, unknown>) => Record<string, unknown>;
+  /** columns whose name looks secret but is a metric/label the UI shows (token_usage…); listed per entity, on purpose */
+  keepColumns?: string[];
 };
 
 function fail(e: { message: string } | null): never {
@@ -107,7 +115,7 @@ export function entityRoutes(db: () => Db, spec: EntitySpec): Route[] {
     const type = t === "boolean" || t === "integer" || t === "number" ? t : "string";
     return { name, type } as { name: string; type: "string" | "boolean" | "integer" | "number" };
   });
-  const finish = (rows: unknown[]) => rows.map((r) => redact(r as Record<string, unknown>)).map((r) => (spec.map ? spec.map(r) : r));
+  const finish = (rows: unknown[]) => rows.map((r) => redactKeeping(r as Record<string, unknown>, spec.keepColumns)).map((r) => (spec.map ? spec.map(r) : r));
   const routes: Route[] = [];
 
   if (want.has("list")) {

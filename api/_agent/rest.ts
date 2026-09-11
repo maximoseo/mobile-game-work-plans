@@ -121,7 +121,10 @@ export async function handleRest(req: Request, app: AppInfo, routes: Route[], su
   const candidates = table.filter((r) => matchPath(r.path, path) !== null).sort((a, b) => paramCount(a) - paramCount(b));
   if (!candidates.length) return finish(json({ error: "not_found", path }, 404), auth.keyId);
   const route = candidates.find((r) => r.method === req.method);
-  if (!route) return finish(json({ error: "method_not_allowed", allowed: candidates.map((r) => r.method) }, 405, { allow: candidates.map((r) => r.method).join(", ") }), auth.keyId);
+  if (!route) {
+    const allowed = [...new Set(candidates.map((r) => r.method))];
+    return finish(json({ error: "method_not_allowed", allowed }, 405, { allow: allowed.join(", ") }), auth.keyId);
+  }
 
   // null-prototype + own-key copy: a "__proto__" key in a body or query can never reach the prototype chain
   const raw: Record<string, unknown> = Object.create(null);
