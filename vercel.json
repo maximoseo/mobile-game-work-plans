@@ -1,16 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/api/v1/:path*",
-      "destination": "/api/v1?path=:path*"
-    },
-    {
-      "source": "/api/openapi.json",
-      "destination": "/api/openapi"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
