@@ -1,4 +1,7 @@
 import type { GamePlan } from "../data/plans";
+import { ENGINES, engineChoiceFor, engineSectionLines, type EngineSectionOptions } from "../data/engines";
+
+export type FullPlanOptions = EngineSectionOptions;
 
 // Genre-based sensible defaults for sections the source data doesn't carry.
 // These are recommendations a bot can follow or override.
@@ -6,7 +9,6 @@ const GENRE_DEFAULTS: Record<
   string,
   {
     art: string;
-    stack: string;
     mechanics: string;
     entities: string[];
     summer: string[];
@@ -15,7 +17,6 @@ const GENRE_DEFAULTS: Record<
 > = {
   Idle: {
     art: "Clean 2D, flat vector UI with juicy micro-animations; bright accent palette on dark surfaces; heavy use of tween/easing for satisfying taps.",
-    stack: "React Native (TypeScript) + Reanimated, or Unity/C# for cross-platform; SQLite/local storage for offline progress.",
     mechanics: "Tap/click loop → earn currency → spend on upgrades → prestige/reset for multipliers. Tuning knobs: base income, upgrade cost curve (exponential), prestige multiplier.",
     entities: ["Player (currency, level, upgrades)", "Upgrade (id, cost, effect)", "PrestigeRun (multiplier, count)"],
     summer: [
@@ -28,7 +29,6 @@ const GENRE_DEFAULTS: Record<
   },
   Puzzle: {
     art: "Minimal 2D, high-contrast shapes, satisfying color pops on match; subtle particles on solve.",
-    stack: "Unity/C# or Godot/GDScript; grid logic in pure code, no physics needed.",
     mechanics: "Board/grid interaction → match/merge/clear → score + level progression. Tuning: move limits, combo multipliers, level difficulty curve.",
     entities: ["Board (grid, cells)", "Piece (type, state)", "Level (layout, goals)", "Score (combo, stars)"],
     summer: [
@@ -41,7 +41,6 @@ const GENRE_DEFAULTS: Record<
   },
   Strategy: {
     art: "Isometric or top-down 2D, readable unit silhouettes, faction color-coding.",
-    stack: "Unity/C# or Godot/GDScript; deterministic simulation for replayability.",
     mechanics: "Place/build → resource economy → unit combat → territory/objective control. Tuning: unit stats, resource rates, AI difficulty.",
     entities: ["Unit (stats, owner)", "Building (cost, output)", "Resource (type, amount)", "Map (tiles, ownership)"],
     summer: [
@@ -54,7 +53,6 @@ const GENRE_DEFAULTS: Record<
   },
   Roguelike: {
     art: "Pixel-art 2D, procedural tile variety, high readability for fast action.",
-    stack: "Godot/GDScript or Unity/C#; seeded RNG for runs; JSON for item/room definitions.",
     mechanics: "Enter room → fight/collect → choose upgrade → die/retry with meta-progression. Tuning: enemy HP scaling, upgrade pool, run length.",
     entities: ["Player (hp, loadout)", "Room (type, enemies)", "Item (rarity, effect)", "Run (seed, floor)"],
     summer: [
@@ -69,7 +67,6 @@ const GENRE_DEFAULTS: Record<
 
 const FALLBACK = {
   art: "Mobile-first 2D, clean readable UI, consistent palette, subtle juice (tweens, particles, haptics).",
-  stack: "Unity/C# or Godot/GDScript for cross-platform mobile; JSON/config-driven content.",
   mechanics: "Core loop → reward → progression → retention hook. Tuning knobs documented per feature.",
   entities: ["Player (state, progression)", "Session (run/level state)", "Config (tunable values)"],
   summer: [
@@ -97,9 +94,10 @@ function slugify(s: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function buildFullPlanMd(plan: GamePlan): string {
+export function buildFullPlanMd(plan: GamePlan, opts: FullPlanOptions = {}): string {
   const d = pickGenre(plan.genre);
   const slug = slugify(plan.id || plan.title);
+  const engine = engineChoiceFor(plan);
   const L: string[] = [];
 
   L.push(`# ${plan.title} — Full Build Plan`);
@@ -152,7 +150,17 @@ export function buildFullPlanMd(plan: GamePlan): string {
 
   L.push("## 7. Technical Stack");
   L.push("");
-  L.push(d.stack);
+  if (opts.existingGame) {
+    L.push("- **Engine:** the game's current engine — an existing game stays in its engine (rule in §16).");
+    L.push(
+      `- **New-game fallback (only if this were built from scratch):** ${ENGINES[engine.primary].name} ${ENGINES[engine.primary].version} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
+    );
+  } else {
+    L.push(
+      `- **Engine (recommended, see §16):** ${ENGINES[engine.primary].name} ${ENGINES[engine.primary].version} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
+    );
+    L.push(`- **Why this engine:** ${ENGINES[engine.primary].bestAt}`);
+  }
   L.push("- Content/data is config-driven (JSON) so designers can tune without code changes.");
   L.push("- Target 60fps on mid-range devices; keep the bundle lean.");
   L.push("");
@@ -208,6 +216,7 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("## 14. Summer Engine Build Guide");
   L.push("");
   L.push("> Target engine: **Summer Engine** — a desktop game engine the agent operates via its MCP (58 tools) + CLI. Free for MCP use.");
+  L.push("> Summer Engine runs on macOS/Windows only — it is not available on the fleet's Linux build box; the engines that are, and the recommendation for this plan, are in §16.");
   L.push("");
   L.push("**Scene tree**");
   for (const line of d.summer) L.push(`- ${line}`);
@@ -229,9 +238,9 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("- Keep the game's UI in a web/React layer (menus, HUD, settings, dialogs) rendered over the engine view.");
   L.push("");
 
-  L.push("## 16. Engine Alternatives");
+  for (const line of engineSectionLines(plan, opts)) L.push(line);
   L.push("");
-  L.push("- **Godot (open-source):** if you prefer a fully open 2D/3D engine, this plan maps 1:1 to Godot/GDScript — the scene tree and entity model carry over directly; use Godot's built-in Control nodes for UI instead of 21st.dev React components.");
+  L.push("- **Porting note:** this plan's scene tree and entity model (§8, §14) map 1:1 to Godot scenes/GDScript and to Defold collections/Lua; use the engine's own UI (Godot Control nodes, Defold GUI) instead of the 21st.dev React components when the game is not a web build.");
   L.push("");
 
   L.push("---");
@@ -253,7 +262,8 @@ export function downloadMarkdown(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-export function downloadPlanMd(plan: GamePlan) {
-  const filename = `${slugify(plan.id || plan.title)}-full-plan.md`;
-  downloadMarkdown(filename, buildFullPlanMd(plan));
+export function downloadPlanMd(plan: GamePlan, opts: FullPlanOptions = {}) {
+  const suffix = opts.existingGame ? "-existing-game" : "";
+  const filename = `${slugify(plan.id || plan.title)}-full-plan${suffix}.md`;
+  downloadMarkdown(filename, buildFullPlanMd(plan, opts));
 }
