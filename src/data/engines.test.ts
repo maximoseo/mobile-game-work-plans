@@ -62,6 +62,9 @@ describe("per-plan engine choice", () => {
     expect(engineChoiceByGenre("").primary).toBe("godot");
     expect(engineChoiceByGenre("Contextual puzzle").primary, "'context' is not 'text'").toBe("godot");
     expect(engineChoiceByGenre("3D narrative adventure").primary, "3D outranks the content-style rules").toBe("unity");
+    expect(engineChoiceByGenre("casual puzzle-ish").primary, "hyphenated terms stay one token").toBe("godot");
+    expect(engineChoiceFor({ id: "constructor", genre: "Casual / puzzle" }).primary, "inherited keys never resolve").toBe("defold");
+    expect(engineChoiceFor({ id: "toString", genre: "Tower defense" }).primary).toBe("godot");
   });
 });
 

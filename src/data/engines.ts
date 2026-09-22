@@ -111,8 +111,9 @@ export const PLAN_ENGINE_CHOICE: Record<string, EngineChoice> = {
 
 /** Fallback by genre keywords for plans that are not in the map (e.g. rows added later to mgwp_plans). */
 export function engineChoiceByGenre(genre: string): EngineChoice {
-  // whole-word matches only — "context" must not read as "text", "puzzle-ish" genres stay on the default path
-  const has = (...words: string[]) => words.some((w) => new RegExp(`\\b${w}\\b`, "i").test(genre));
+  // exact-token matches only: "Contextual" is not "text" and "puzzle-ish" is not "puzzle" (hyphenated terms stay one token)
+  const tokens = genre.toLowerCase().split(/[\s/,;:()]+/).filter(Boolean);
+  const has = (...words: string[]) => words.some((w) => tokens.includes(w));
   // a 3D / console / shooter genre outranks the content-style rules below (CodeRabbit)
   if (has("3d", "console", "shooter", "fps"))
     return { primary: "unity", runnerUp: "godot", reason: "3D-heavy or console target: Unity's URP/IL2CPP and console exports." };
@@ -124,7 +125,8 @@ export function engineChoiceByGenre(genre: string): EngineChoice {
 }
 
 export function engineChoiceFor(plan: Pick<GamePlan, "id" | "genre">): EngineChoice {
-  return PLAN_ENGINE_CHOICE[plan.id] ?? engineChoiceByGenre(plan.genre);
+  // own keys only — a DB row id such as "constructor" must not resolve to an inherited property (CodeRabbit)
+  return Object.hasOwn(PLAN_ENGINE_CHOICE, plan.id) ? PLAN_ENGINE_CHOICE[plan.id] : engineChoiceByGenre(plan.genre);
 }
 
 export const ENGINE_RULES = {
