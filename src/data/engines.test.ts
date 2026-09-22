@@ -73,6 +73,7 @@ describe("engine section", () => {
     expect(lines.join("\n")).toContain("**Recommended:** Web (Three.js / Phaser + WebView APK)");
     expect(lines.join("\n")).toContain("**Runner-up:** Godot");
     for (const id of ENGINE_IDS) expect(lines.join("\n")).toContain(`**${ENGINES[id].name} ${ENGINES[id].version}**`);
+    expect(lines.join("\n")).not.toMatch(/\.\. Runbook:/); // no double period after a gate that already ends with one
   });
 
   it("flips to the stay-in-engine rule for an existing game", () => {

@@ -43,7 +43,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
     licence: "Free forever (Apache-2.0-derived Defold License): sell your game, never the engine itself.",
     bestAt: "HTML5-first games (Poki / CrazyGames partner engine, empty web build under 1 MB) and small 2D Android builds; Lua.",
     connect:
-      "Installed on the fleet build box: `bob --platform=js-web --archive --variant=release resolve build bundle --bundle-output build/web`; Android `--platform=armv7-android --architectures=arm64-v8a --bundle-format=aab`; native extensions build on build.defold.com.",
+      "Installed on the fleet build box: `bob --platform=wasm-web --archive --variant=release resolve build bundle --bundle-output build/web`; Android `--platform=armv7-android --architectures=arm64-v8a --bundle-format=aab`; native extensions build on build.defold.com.",
     gate: "none",
     runbook: "https://defold.com/manuals/bob/",
   },
@@ -166,7 +166,8 @@ export function engineSectionLines(plan: Pick<GamePlan, "id" | "genre">, opts: E
   L.push("");
   for (const id of ENGINE_IDS) {
     const e = ENGINES[id];
-    L.push(`- **${e.name} ${e.version}** — ${e.licence} Best at: ${e.bestAt} Connect: ${e.connect} Gate: ${e.gate}. Runbook: ${e.runbook}`);
+    const gate = e.gate.endsWith(".") ? e.gate : `${e.gate}.`; // one trailing period whether the data carries it or not (CodeRabbit)
+    L.push(`- **${e.name} ${e.version}** — ${e.licence} Best at: ${e.bestAt} Connect: ${e.connect} Gate: ${gate} Runbook: ${e.runbook}`);
   }
   L.push("");
   L.push("**Build-box facts (2026-09-22):** Godot 4.7.2, Defold 1.13.1 (`bob` on JDK 25) and the Unity CLI + Editor 6.3 LTS are installed on the fleet Linux box (4 CPU, 16 GB, no GPU); Unity builds need the owner's licence step; Unreal is not installed. Installs, MCP wiring and account steps are approval-gated.");
