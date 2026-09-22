@@ -4,6 +4,7 @@ import { ENGINES, engineChoiceFor } from "../data/engines";
 import { buildFullPlanMd } from "./fullPlanMd";
 
 const headings = (md: string) => md.split("\n").filter((l) => l.startsWith("## "));
+const md_head = (md: string) => md.slice(0, md.indexOf("## 7. Technical Stack"));
 
 describe("buildFullPlanMd", () => {
   it("keeps the 16 numbered sections in order for every plan, with §16 renamed to Engine choice", () => {
@@ -21,7 +22,8 @@ describe("buildFullPlanMd", () => {
     for (const p of gamePlans) {
       const md = buildFullPlanMd(p);
       const c = engineChoiceFor(p);
-      expect(md).toContain(`- **Engine (recommended, see §16):** ${ENGINES[c.primary].name}`);
+      expect(md).toContain(`- **Engine (recommended, see §16):** ${ENGINES[c.primary].name} ${ENGINES[c.primary].version}`);
+      expect(md).toContain(`- **Why this engine:** ${ENGINES[c.primary].bestAt}`);
       const s16 = md.slice(md.indexOf("## 16. Engine choice"));
       expect(s16).toContain(`**Recommended:** ${ENGINES[c.primary].name}`);
       expect(s16).toContain(`**Runner-up:** ${ENGINES[c.runnerUp].name}`);
@@ -33,12 +35,16 @@ describe("buildFullPlanMd", () => {
     expect(buildFullPlanMd(gamePlans[0])).toContain("Summer Engine runs on macOS/Windows only");
   });
 
-  it("the existing-game option changes only §16 (and the mode line), nothing before it", () => {
+  it("the existing-game option changes §7 (stay-in-engine + fallback) and §16, nothing else", () => {
     const p = gamePlans.find((x) => x.id === "lost-signal")!;
     const fresh = buildFullPlanMd(p);
     const existing = buildFullPlanMd(p, { existingGame: true });
-    const cut = (md: string) => md.slice(0, md.indexOf("## 16. Engine choice"));
-    expect(cut(fresh)).toBe(cut(existing));
+    const between = (md: string) => md.slice(md.indexOf("## 8. "), md.indexOf("## 16. Engine choice"));
+    expect(md_head(fresh)).toBe(md_head(existing));
+    expect(between(fresh)).toBe(between(existing));
+    expect(existing).toContain("- **Engine:** the game's current engine — an existing game stays in its engine (rule in §16).");
+    expect(existing).toContain("- **New-game fallback (only if this were built from scratch):** Web (Three.js / Phaser + WebView APK)");
+    expect(existing).not.toContain("**Engine (recommended, see §16):**");
     expect(existing).toContain("**Mode: adding elements to an existing game.**");
     expect(existing).toContain("If this plan starts a **new** game instead, the recommendation is **Web (Three.js / Phaser + WebView APK)**");
     expect(fresh).toContain("**Mode: new game.**");

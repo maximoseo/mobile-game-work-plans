@@ -9,7 +9,6 @@ const GENRE_DEFAULTS: Record<
   string,
   {
     art: string;
-    stack: string;
     mechanics: string;
     entities: string[];
     summer: string[];
@@ -18,7 +17,6 @@ const GENRE_DEFAULTS: Record<
 > = {
   Idle: {
     art: "Clean 2D, flat vector UI with juicy micro-animations; bright accent palette on dark surfaces; heavy use of tween/easing for satisfying taps.",
-    stack: "React Native (TypeScript) + Reanimated, or Unity/C# for cross-platform; SQLite/local storage for offline progress.",
     mechanics: "Tap/click loop → earn currency → spend on upgrades → prestige/reset for multipliers. Tuning knobs: base income, upgrade cost curve (exponential), prestige multiplier.",
     entities: ["Player (currency, level, upgrades)", "Upgrade (id, cost, effect)", "PrestigeRun (multiplier, count)"],
     summer: [
@@ -31,7 +29,6 @@ const GENRE_DEFAULTS: Record<
   },
   Puzzle: {
     art: "Minimal 2D, high-contrast shapes, satisfying color pops on match; subtle particles on solve.",
-    stack: "Unity/C# or Godot/GDScript; grid logic in pure code, no physics needed.",
     mechanics: "Board/grid interaction → match/merge/clear → score + level progression. Tuning: move limits, combo multipliers, level difficulty curve.",
     entities: ["Board (grid, cells)", "Piece (type, state)", "Level (layout, goals)", "Score (combo, stars)"],
     summer: [
@@ -44,7 +41,6 @@ const GENRE_DEFAULTS: Record<
   },
   Strategy: {
     art: "Isometric or top-down 2D, readable unit silhouettes, faction color-coding.",
-    stack: "Unity/C# or Godot/GDScript; deterministic simulation for replayability.",
     mechanics: "Place/build → resource economy → unit combat → territory/objective control. Tuning: unit stats, resource rates, AI difficulty.",
     entities: ["Unit (stats, owner)", "Building (cost, output)", "Resource (type, amount)", "Map (tiles, ownership)"],
     summer: [
@@ -57,7 +53,6 @@ const GENRE_DEFAULTS: Record<
   },
   Roguelike: {
     art: "Pixel-art 2D, procedural tile variety, high readability for fast action.",
-    stack: "Godot/GDScript or Unity/C#; seeded RNG for runs; JSON for item/room definitions.",
     mechanics: "Enter room → fight/collect → choose upgrade → die/retry with meta-progression. Tuning: enemy HP scaling, upgrade pool, run length.",
     entities: ["Player (hp, loadout)", "Room (type, enemies)", "Item (rarity, effect)", "Run (seed, floor)"],
     summer: [
@@ -72,7 +67,6 @@ const GENRE_DEFAULTS: Record<
 
 const FALLBACK = {
   art: "Mobile-first 2D, clean readable UI, consistent palette, subtle juice (tweens, particles, haptics).",
-  stack: "Unity/C# or Godot/GDScript for cross-platform mobile; JSON/config-driven content.",
   mechanics: "Core loop → reward → progression → retention hook. Tuning knobs documented per feature.",
   entities: ["Player (state, progression)", "Session (run/level state)", "Config (tunable values)"],
   summer: [
@@ -156,10 +150,17 @@ export function buildFullPlanMd(plan: GamePlan, opts: FullPlanOptions = {}): str
 
   L.push("## 7. Technical Stack");
   L.push("");
-  L.push(d.stack);
-  L.push(
-    `- **Engine (recommended, see §16):** ${ENGINES[engine.primary].name} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
-  );
+  if (opts.existingGame) {
+    L.push("- **Engine:** the game's current engine — an existing game stays in its engine (rule in §16).");
+    L.push(
+      `- **New-game fallback (only if this were built from scratch):** ${ENGINES[engine.primary].name} ${ENGINES[engine.primary].version} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
+    );
+  } else {
+    L.push(
+      `- **Engine (recommended, see §16):** ${ENGINES[engine.primary].name} ${ENGINES[engine.primary].version} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
+    );
+    L.push(`- **Why this engine:** ${ENGINES[engine.primary].bestAt}`);
+  }
   L.push("- Content/data is config-driven (JSON) so designers can tune without code changes.");
   L.push("- Target 60fps on mid-range devices; keep the bundle lean.");
   L.push("");

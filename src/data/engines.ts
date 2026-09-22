@@ -113,12 +113,13 @@ export const PLAN_ENGINE_CHOICE: Record<string, EngineChoice> = {
 export function engineChoiceByGenre(genre: string): EngineChoice {
   // whole-word matches only — "context" must not read as "text", "puzzle-ish" genres stay on the default path
   const has = (...words: string[]) => words.some((w) => new RegExp(`\\b${w}\\b`, "i").test(genre));
+  // a 3D / console / shooter genre outranks the content-style rules below (CodeRabbit)
+  if (has("3d", "console", "shooter", "fps"))
+    return { primary: "unity", runnerUp: "godot", reason: "3D-heavy or console target: Unity's URP/IL2CPP and console exports." };
   if (has("idle", "incremental", "clicker", "narrative", "mystery", "text"))
     return { primary: "web", runnerUp: "godot", reason: "UI- and text-heavy: the DOM is the best UI toolkit; Godot otherwise." };
   if (has("casual") && has("puzzle"))
     return { primary: "defold", runnerUp: "godot", reason: "casual puzzle, web-first: sub-1 MB HTML5 and the Poki partner SDK." };
-  if (has("3d", "console", "shooter", "fps"))
-    return { primary: "unity", runnerUp: "godot", reason: "3D-heavy or console target: Unity's URP/IL2CPP and console exports." };
   return { primary: "godot", runnerUp: "defold", reason: "the fleet default for 2D mobile: GDScript iteration and headless export on the build box." };
 }
 
