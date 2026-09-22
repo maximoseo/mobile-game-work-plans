@@ -12,6 +12,8 @@ export type EngineId = (typeof ENGINE_IDS)[number];
 export interface EngineInfo {
   id: EngineId;
   name: string;
+  /** short label for badges */
+  short: string;
   version: string;
   licence: string;
   bestAt: string;
@@ -24,6 +26,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
   godot: {
     id: "godot",
     name: "Godot",
+    short: "Godot",
     version: "4.7.2 (MIT)",
     licence: "MIT — free, no royalties, no account.",
     bestAt: "2D and light-3D mobile games, tycoon/management UI, fast GDScript iteration; the fleet default.",
@@ -35,6 +38,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
   defold: {
     id: "defold",
     name: "Defold",
+    short: "Defold",
     version: "1.13.1 (Defold License, free forever)",
     licence: "Free forever (Apache-2.0-derived Defold License): sell your game, never the engine itself.",
     bestAt: "HTML5-first games (Poki / CrazyGames partner engine, empty web build under 1 MB) and small 2D Android builds; Lua.",
@@ -46,6 +50,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
   web: {
     id: "web",
     name: "Web (Three.js / Phaser + WebView APK)",
+    short: "Web",
     version: "Three.js r17x / Phaser 4, Vite",
     licence: "MIT libraries — free.",
     bestAt: "UI- and text-heavy games (narrative, idle/incremental) where the DOM is the best UI toolkit; the fleet's proven Kotlin WebView wrapper (charge, street-brawler).",
@@ -56,6 +61,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
   unity: {
     id: "unity",
     name: "Unity",
+    short: "Unity",
     version: "6.3 LTS (6000.3.x)",
     licence:
       "Personal free for games while funding/revenue < $200K; Pro required above it ($210/month or $2,310/year per seat); Enterprise > $25M.",
@@ -68,6 +74,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
   unreal: {
     id: "unreal",
     name: "Unreal Engine",
+    short: "Unreal",
     version: "5.8",
     licence: "Free under $1M lifetime gross revenue per product, then a 5 % royalty; $1,850/seat/year only for non-game commercial use.",
     bestAt: "Photoreal 3D and console-first productions; not mobile casual.",

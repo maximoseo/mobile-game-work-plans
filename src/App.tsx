@@ -15,7 +15,7 @@ function EngineBadge({ plan }: { plan: GamePlan }) {
   const c = engineChoiceFor(plan);
   return (
     <span className="engine-badge" title={c.reason} data-engine={c.primary}>
-      {ENGINES[c.primary].name} · runner-up {ENGINES[c.runnerUp].name}
+      {ENGINES[c.primary].short} · runner-up {ENGINES[c.runnerUp].short}
     </span>
   );
 }
