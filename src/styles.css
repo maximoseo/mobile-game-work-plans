@@ -604,3 +604,77 @@ h1 {
   border-color: var(--accent);
   background: var(--panel);
 }
+
+/* Engine choice (2026-09-22): badge on every card + the "Existing game" toggle in the Markdown modal */
+.card-engine {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card-engine-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+}
+
+.engine-badge {
+  display: inline-block;
+  background: rgba(91, 140, 255, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(91, 140, 255, 0.35);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.engine-badge[data-engine="defold"] {
+  background: rgba(64, 200, 140, 0.12);
+  color: #5fd39a;
+  border-color: rgba(64, 200, 140, 0.35);
+}
+
+.engine-badge[data-engine="web"] {
+  background: rgba(255, 184, 77, 0.12);
+  color: #ffc46b;
+  border-color: rgba(255, 184, 77, 0.35);
+}
+
+.engine-badge[data-engine="unity"],
+.engine-badge[data-engine="unreal"] {
+  background: rgba(200, 200, 220, 0.1);
+  color: #c9d0e6;
+  border-color: rgba(200, 200, 220, 0.3);
+}
+
+.modal-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.modal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.modal-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}

@@ -1,4 +1,7 @@
 import type { GamePlan } from "../data/plans";
+import { ENGINES, engineChoiceFor, engineSectionLines, type EngineSectionOptions } from "../data/engines";
+
+export type FullPlanOptions = EngineSectionOptions;
 
 // Genre-based sensible defaults for sections the source data doesn't carry.
 // These are recommendations a bot can follow or override.
@@ -97,9 +100,10 @@ function slugify(s: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function buildFullPlanMd(plan: GamePlan): string {
+export function buildFullPlanMd(plan: GamePlan, opts: FullPlanOptions = {}): string {
   const d = pickGenre(plan.genre);
   const slug = slugify(plan.id || plan.title);
+  const engine = engineChoiceFor(plan);
   const L: string[] = [];
 
   L.push(`# ${plan.title} — Full Build Plan`);
@@ -153,6 +157,9 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("## 7. Technical Stack");
   L.push("");
   L.push(d.stack);
+  L.push(
+    `- **Engine (recommended, see §16):** ${ENGINES[engine.primary].name} — ${engine.reason} Runner-up: ${ENGINES[engine.runnerUp].name}.`
+  );
   L.push("- Content/data is config-driven (JSON) so designers can tune without code changes.");
   L.push("- Target 60fps on mid-range devices; keep the bundle lean.");
   L.push("");
@@ -208,6 +215,7 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("## 14. Summer Engine Build Guide");
   L.push("");
   L.push("> Target engine: **Summer Engine** — a desktop game engine the agent operates via its MCP (58 tools) + CLI. Free for MCP use.");
+  L.push("> Summer Engine runs on macOS/Windows only — it is not available on the fleet's Linux build box; the engines that are, and the recommendation for this plan, are in §16.");
   L.push("");
   L.push("**Scene tree**");
   for (const line of d.summer) L.push(`- ${line}`);
@@ -229,9 +237,9 @@ export function buildFullPlanMd(plan: GamePlan): string {
   L.push("- Keep the game's UI in a web/React layer (menus, HUD, settings, dialogs) rendered over the engine view.");
   L.push("");
 
-  L.push("## 16. Engine Alternatives");
+  for (const line of engineSectionLines(plan, opts)) L.push(line);
   L.push("");
-  L.push("- **Godot (open-source):** if you prefer a fully open 2D/3D engine, this plan maps 1:1 to Godot/GDScript — the scene tree and entity model carry over directly; use Godot's built-in Control nodes for UI instead of 21st.dev React components.");
+  L.push("- **Porting note:** this plan's scene tree and entity model (§8, §14) map 1:1 to Godot scenes/GDScript and to Defold collections/Lua; use the engine's own UI (Godot Control nodes, Defold GUI) instead of the 21st.dev React components when the game is not a web build.");
   L.push("");
 
   L.push("---");
@@ -253,7 +261,8 @@ export function downloadMarkdown(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-export function downloadPlanMd(plan: GamePlan) {
-  const filename = `${slugify(plan.id || plan.title)}-full-plan.md`;
-  downloadMarkdown(filename, buildFullPlanMd(plan));
+export function downloadPlanMd(plan: GamePlan, opts: FullPlanOptions = {}) {
+  const suffix = opts.existingGame ? "-existing-game" : "";
+  const filename = `${slugify(plan.id || plan.title)}-full-plan${suffix}.md`;
+  downloadMarkdown(filename, buildFullPlanMd(plan, opts));
 }

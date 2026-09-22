@@ -7,7 +7,18 @@ import {
 } from "./data/plans";
 import { supabase, isSupabaseConfigured } from "./lib/supabase";
 import { buildFullPlanMd, downloadPlanMd } from "./lib/fullPlanMd";
+import { ENGINES, engineChoiceFor } from "./data/engines";
 import Login from "./Login";
+
+/** "Godot · runner-up Defold" — the plan's engine recommendation, from src/data/engines.ts. */
+function EngineBadge({ plan }: { plan: GamePlan }) {
+  const c = engineChoiceFor(plan);
+  return (
+    <span className="engine-badge" title={c.reason} data-engine={c.primary}>
+      {ENGINES[c.primary].name} · runner-up {ENGINES[c.runnerUp].name}
+    </span>
+  );
+}
 
 function MilestoneTable({ plan }: { plan: GamePlan }) {
   return (
@@ -46,6 +57,9 @@ function PlanCard({
         <span className="card-toggle">{open ? "−" : "+"}</span>
       </button>
       <p className="card-core">{plan.coreGameplay}</p>
+      <p className="card-engine">
+        <span className="card-engine-label">Engine</span> <EngineBadge plan={plan} />
+      </p>
       <div className="card-meta">
         <div>
           <h4>Target audience</h4>
@@ -86,7 +100,9 @@ function MarkdownModal({
   plan: GamePlan;
   onClose: () => void;
 }) {
-  const md = useMemo(() => buildFullPlanMd(plan), [plan]);
+  // "Existing game?" flips §16 to the stay-in-engine rule; the toggle is per modal, never persisted.
+  const [existingGame, setExistingGame] = useState(false);
+  const md = useMemo(() => buildFullPlanMd(plan, { existingGame }), [plan, existingGame]);
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -117,12 +133,24 @@ function MarkdownModal({
             ×
           </button>
         </div>
+        <div className="modal-options">
+          <EngineBadge plan={plan} />
+          <label className="modal-toggle">
+            <input
+              type="checkbox"
+              checked={existingGame}
+              onChange={(e) => setExistingGame(e.target.checked)}
+              data-testid="existing-game-toggle"
+            />
+            Existing game (adding elements — §16 leads with the stay-in-engine rule)
+          </label>
+        </div>
         <pre className="modal-md">{md}</pre>
         <div className="modal-actions">
           <button className="md-btn" onClick={copy}>
             {copied ? "Copied ✓" : "Copy"}
           </button>
-          <button className="md-btn" onClick={() => downloadPlanMd(plan)}>
+          <button className="md-btn" onClick={() => downloadPlanMd(plan, { existingGame })}>
             Download .md
           </button>
         </div>
