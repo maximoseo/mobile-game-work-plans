@@ -60,6 +60,7 @@ describe("per-plan engine choice", () => {
     expect(engineChoiceFor({ id: "brand-new-row", genre: "3D racing" }).primary).toBe("unity");
     expect(engineChoiceFor({ id: "brand-new-row", genre: "Tower defense" }).primary).toBe("godot");
     expect(engineChoiceByGenre("").primary).toBe("godot");
+    expect(engineChoiceByGenre("Contextual puzzle").primary, "'context' is not 'text'").toBe("godot");
   });
 });
 

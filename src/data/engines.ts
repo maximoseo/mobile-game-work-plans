@@ -51,7 +51,7 @@ export const ENGINES: Record<EngineId, EngineInfo> = {
     id: "web",
     name: "Web (Three.js / Phaser + WebView APK)",
     short: "Web",
-    version: "Three.js r17x / Phaser 4, Vite",
+    version: "Three.js / Phaser 4 (Vite build)",
     licence: "MIT libraries — free.",
     bestAt: "UI- and text-heavy games (narrative, idle/incremental) where the DOM is the best UI toolkit; the fleet's proven Kotlin WebView wrapper (charge, street-brawler).",
     connect: "Vite build → the Kotlin Compose WebView wrapper; Phaser has an official MCP (phaser.io/agent/mcp).",
@@ -111,12 +111,13 @@ export const PLAN_ENGINE_CHOICE: Record<string, EngineChoice> = {
 
 /** Fallback by genre keywords for plans that are not in the map (e.g. rows added later to mgwp_plans). */
 export function engineChoiceByGenre(genre: string): EngineChoice {
-  const g = genre.toLowerCase();
-  if (g.includes("idle") || g.includes("incremental") || g.includes("narrative") || g.includes("mystery") || g.includes("text"))
+  // whole-word matches only — "context" must not read as "text", "puzzle-ish" genres stay on the default path
+  const has = (...words: string[]) => words.some((w) => new RegExp(`\\b${w}\\b`, "i").test(genre));
+  if (has("idle", "incremental", "clicker", "narrative", "mystery", "text"))
     return { primary: "web", runnerUp: "godot", reason: "UI- and text-heavy: the DOM is the best UI toolkit; Godot otherwise." };
-  if (g.includes("casual") && g.includes("puzzle"))
+  if (has("casual") && has("puzzle"))
     return { primary: "defold", runnerUp: "godot", reason: "casual puzzle, web-first: sub-1 MB HTML5 and the Poki partner SDK." };
-  if (g.includes("3d") || g.includes("console") || g.includes("shooter") || g.includes("fps"))
+  if (has("3d", "console", "shooter", "fps"))
     return { primary: "unity", runnerUp: "godot", reason: "3D-heavy or console target: Unity's URP/IL2CPP and console exports." };
   return { primary: "godot", runnerUp: "defold", reason: "the fleet default for 2D mobile: GDScript iteration and headless export on the build box." };
 }
