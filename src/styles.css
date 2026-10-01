@@ -1,13 +1,13 @@
 :root {
-  --bg: #0a0e17;
-  --bg-2: #101624;
-  --panel: #161d30;
-  --panel-2: #1c2440;
-  --border: #26304f;
+  --bg: #101827;
+  --bg-2: #182438;
+  --panel: #1e2b3e;
+  --panel-2: #293a50;
+  --border: #52647d;
   --text: #e6ebf5;
-  --muted: #8a94b0;
-  --accent: #5b8cff;
-  --accent-2: #7c5bff;
+  --muted: #b7c5d8;
+  --accent: #91b5ff;
+  --accent-2: #b5a0ff;
   --gold: #f5c451;
   --green: #3ddc84;
   --radius: 14px;
@@ -132,7 +132,7 @@ h1 {
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: linear-gradient(135deg, #3158c7, #6740c7);
   color: #fff;
   display: grid;
   place-items: center;
@@ -493,7 +493,7 @@ h1 {
 }
 
 .login-btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background: linear-gradient(135deg, #3158c7, #6740c7);
   color: #fff;
   border: none;
   border-radius: 10px;
