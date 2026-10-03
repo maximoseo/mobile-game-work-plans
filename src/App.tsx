@@ -257,7 +257,7 @@ function Dashboard({
 
         <section className="section">
           <h2>
-            All 15 Work Plans{" "}
+            All {plans.length} Work Plans{" "}
             <span className="count">
               {filtered.length}/{plans.length}
             </span>
