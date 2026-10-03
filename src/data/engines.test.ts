@@ -32,8 +32,8 @@ describe("engine catalog", () => {
 });
 
 describe("per-plan engine choice", () => {
-  it("covers all 15 static plans by id, with primary ≠ runner-up and a reason", () => {
-    expect(gamePlans).toHaveLength(15);
+  it("covers all 27 static plans by id, with primary ≠ runner-up and a reason", () => {
+    expect(gamePlans).toHaveLength(27);
     for (const p of gamePlans) {
       const c = PLAN_ENGINE_CHOICE[p.id];
       expect(c, p.id).toBeDefined();
