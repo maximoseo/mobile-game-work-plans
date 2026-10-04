@@ -1,4 +1,5 @@
 import { useState, type InputHTMLAttributes } from "react";
+import { useT } from "./lib/i18n/provider";
 
 type Props = InputHTMLAttributes<HTMLInputElement>;
 
@@ -11,7 +12,8 @@ type Props = InputHTMLAttributes<HTMLInputElement>;
  */
 export function PasswordInput({ style, ...props }: Props) {
   const [show, setShow] = useState(false);
-  const label = show ? "Hide password" : "Show password";
+  const t = useT();
+  const label = show ? t("Hide password") : t("Show password");
 
   return (
     <div style={{ position: "relative", display: "block" }}>

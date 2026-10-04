@@ -678,3 +678,37 @@ h1 {
   height: 18px;
   accent-color: var(--accent);
 }
+
+
+/* ── RTL (Hebrew) ─────────────────────────────────────────── */
+[dir="rtl"] .first-grid ul,
+[dir="rtl"] .card-features ul,
+[dir="rtl"] .card-meta ul {
+  padding-left: 0;
+  padding-right: 18px;
+}
+
+[dir="rtl"] .milestone-tasks {
+  padding-left: 0;
+  padding-right: 16px;
+}
+
+[dir="rtl"] .first-grid li,
+[dir="rtl"] .card-features li {
+  text-align: right;
+}
+
+[dir="rtl"] .search,
+[dir="rtl"] .field input {
+  text-align: right;
+}
+
+[dir="rtl"] .milestone-dep {
+  text-align: right;
+}
+
+/* The markdown plan document itself is always LTR English. */
+[dir="rtl"] .modal-md {
+  direction: ltr;
+  text-align: left;
+}

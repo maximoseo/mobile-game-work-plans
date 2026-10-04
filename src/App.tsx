@@ -9,6 +9,9 @@ import { supabase, isSupabaseConfigured } from "./lib/supabase";
 import { buildFullPlanMd, downloadPlanMd } from "./lib/fullPlanMd";
 import { ENGINES, engineChoiceFor } from "./data/engines";
 import Login from "./Login";
+import { useT } from "./lib/i18n/provider";
+import { LanguageToggle } from "./components/LanguageToggle";
+import { WhatsNewModal } from "./components/WhatsNewModal";
 
 /** "Godot · runner-up Defold" — the plan's engine recommendation, from src/data/engines.ts. */
 function EngineBadge({ plan }: { plan: GamePlan }) {
@@ -21,6 +24,7 @@ function EngineBadge({ plan }: { plan: GamePlan }) {
 }
 
 function MilestoneTable({ plan }: { plan: GamePlan }) {
+  const t = useT();
   return (
     <div className="milestones">
       {plan.workPlan.map((m) => (
@@ -29,7 +33,7 @@ function MilestoneTable({ plan }: { plan: GamePlan }) {
             <span className="milestone-name">{m.name}</span>
             <span className="milestone-duration">{m.duration}</span>
           </div>
-          {m.dependencies && <div className="milestone-dep">↳ depends on: {m.dependencies}</div>}
+          {m.dependencies && <div className="milestone-dep">↳ {t("depends on:")} {m.dependencies}</div>}
           <ul className="milestone-tasks">
             {m.tasks.map((t) => (
               <li key={t}>{t}</li>
@@ -49,6 +53,7 @@ function PlanCard({
   onPreview: (p: GamePlan) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const t = useT();
   return (
     <article className="card">
       <button className="card-head" onClick={() => setOpen((o) => !o)}>
@@ -58,20 +63,20 @@ function PlanCard({
       </button>
       <p className="card-core">{plan.coreGameplay}</p>
       <p className="card-engine">
-        <span className="card-engine-label">Engine</span> <EngineBadge plan={plan} />
+        <span className="card-engine-label">{t("Engine")}</span> <EngineBadge plan={plan} />
       </p>
       <div className="card-meta">
         <div>
-          <h4>Target audience</h4>
+          <h4>{t("Target audience")}</h4>
           <p>{plan.audience}</p>
         </div>
         <div>
-          <h4>Monetization</h4>
+          <h4>{t("Monetization")}</h4>
           <p>{plan.monetization}</p>
         </div>
       </div>
       <div className="card-features">
-        <h4>Main features</h4>
+        <h4>{t("Main features")}</h4>
         <ul>
           {plan.features.map((f) => (
             <li key={f}>{f}</li>
@@ -80,13 +85,13 @@ function PlanCard({
       </div>
       {open && (
         <div className="card-plan">
-          <h4>Work plan</h4>
+          <h4>{t("Work plan")}</h4>
           <MilestoneTable plan={plan} />
         </div>
       )}
       <div className="card-actions">
         <button className="md-btn" onClick={() => onPreview(plan)}>
-          Full Plan (MD)
+          {t("Full Plan (MD)")}
         </button>
       </div>
     </article>
@@ -104,6 +109,7 @@ function MarkdownModal({
   const [existingGame, setExistingGame] = useState(false);
   const md = useMemo(() => buildFullPlanMd(plan, { existingGame }), [plan, existingGame]);
   const [copied, setCopied] = useState(false);
+  const t = useT();
 
   async function copy() {
     let ok = false;
@@ -128,8 +134,8 @@ function MarkdownModal({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h3>{plan.title} — Full Plan (Markdown)</h3>
-          <button className="modal-close" onClick={onClose} aria-label="Close">
+          <h3>{plan.title} — {t("Full Plan (Markdown)")}</h3>
+          <button className="modal-close" onClick={onClose} aria-label={t("Close")}>
             ×
           </button>
         </div>
@@ -142,16 +148,16 @@ function MarkdownModal({
               onChange={(e) => setExistingGame(e.target.checked)}
               data-testid="existing-game-toggle"
             />
-            Existing game (adding elements — §16 leads with the stay-in-engine rule)
+            {t("Existing game (adding elements — §16 leads with the stay-in-engine rule)")}
           </label>
         </div>
-        <pre className="modal-md">{md}</pre>
+        <pre className="modal-md" dir="ltr">{md}</pre>
         <div className="modal-actions">
           <button className="md-btn" onClick={copy}>
-            {copied ? "Copied ✓" : "Copy"}
+            {copied ? t("Copied ✓") : t("Copy")}
           </button>
           <button className="md-btn" onClick={() => downloadPlanMd(plan, { existingGame })}>
-            Download .md
+            {t("Download .md")}
           </button>
         </div>
       </div>
@@ -170,6 +176,7 @@ function Dashboard({
 }) {
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<GamePlan | null>(null);
+  const t = useT();
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return plans;
@@ -186,31 +193,32 @@ function Dashboard({
       <header className="header">
         <div className="header-inner">
           <div>
-            <h1>Mobile Game Work Plans</h1>
+            <h1>{t("Mobile Game Work Plans")}</h1>
             <p className="subtitle">
-              Planning-only work plans for 15 mobile game concepts · MaximoSEO
+              {t("Planning-only work plans for mobile game concepts · MaximoSEO")}
             </p>
           </div>
           <div className="header-actions">
             <input
               className="search"
-              placeholder="Search ideas…"
+              placeholder={t("Search ideas…")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
+            <LanguageToggle />
             <button className="signout-btn" onClick={onSignOut}>
-              Sign out
+              {t("Sign out")}
             </button>
           </div>
         </div>
-        <div className="source-badge" title="Data source">
-          {dbMode ? "● Database-backed (Supabase)" : "○ Static fallback"}
+        <div className="source-badge" title={t("Data source")}>
+          {dbMode ? t("● Database-backed (Supabase)") : t("○ Static fallback")}
         </div>
       </header>
 
       <main className="main">
         <section className="section">
-          <h2>Priority Development List</h2>
+          <h2>{t("Priority Development List")}</h2>
           <ol className="priority">
             {priorityList.map((p) => (
               <li key={p.rank} className="priority-item">
@@ -225,7 +233,7 @@ function Dashboard({
         </section>
 
         <section className="section first">
-          <h2>Recommended First Project</h2>
+          <h2>{t("Recommended First Project")}</h2>
           <div className="first-card">
             <div className="first-head">
               <h3>{firstProject.title}</h3>
@@ -234,7 +242,7 @@ function Dashboard({
             <p className="first-core">{firstProject.coreGameplay}</p>
             <div className="first-grid">
               <div>
-                <h4>Main features</h4>
+                <h4>{t("Main features")}</h4>
                 <ul>
                   {firstProject.features.map((f) => (
                     <li key={f}>{f}</li>
@@ -242,9 +250,9 @@ function Dashboard({
                 </ul>
               </div>
               <div>
-                <h4>Target audience</h4>
+                <h4>{t("Target audience")}</h4>
                 <p>{firstProject.audience}</p>
-                <h4>Monetization ideas</h4>
+                <h4>{t("Monetization ideas")}</h4>
                 <ul>
                   {firstProject.monetization.map((m) => (
                     <li key={m}>{m}</li>
@@ -257,7 +265,7 @@ function Dashboard({
 
         <section className="section">
           <h2>
-            All {plans.length} Work Plans{" "}
+            {t("All {n} Work Plans").replace("{n}", String(plans.length))}{" "}
             <span className="count">
               {filtered.length}/{plans.length}
             </span>
@@ -275,8 +283,9 @@ function Dashboard({
       )}
 
       <footer className="footer">
-        Planning only — no execution. Generated by Hermes Agent · {new Date().getFullYear()}
+        {t("Planning only — no execution. Generated by Hermes Agent")} · {new Date().getFullYear()}
       </footer>
+      <WhatsNewModal />
     </div>
   );
 }

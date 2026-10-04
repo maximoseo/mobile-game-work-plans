@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { supabase } from "./lib/supabase";
+import { useT } from "./lib/i18n/provider";
+import { LanguageToggle } from "./components/LanguageToggle";
 
 import { PasswordInput } from "./PasswordInput";
 
@@ -8,11 +10,12 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const t = useT();
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!supabase) {
-      setError("Database backend is not configured.");
+      setError(t("Database backend is not configured."));
       return;
     }
     setBusy(true);
@@ -26,11 +29,14 @@ export default function Login() {
     <div className="shell login-shell">
       <main className="login-wrap">
         <form className="login-card" onSubmit={onSubmit}>
-          <h1>Mobile Game Work Plans</h1>
-          <p className="subtitle">Sign in to view the 15 game-concept work plans.</p>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+            <LanguageToggle />
+          </div>
+          <h1>{t("Mobile Game Work Plans")}</h1>
+          <p className="subtitle">{t("Sign in to view the game-concept work plans.")}</p>
 
           <label className="field">
-            <span>Email</span>
+            <span>{t("Email")}</span>
             <input
               type="email"
               value={email}
@@ -43,7 +49,7 @@ export default function Login() {
 
           {/* div, not label: the show/hide button must not be nested inside a label */}
           <div className="field">
-            <label htmlFor="login-password">Password</label>
+            <label htmlFor="login-password">{t("Password")}</label>
             <PasswordInput
               id="login-password"
               value={password}
@@ -57,7 +63,7 @@ export default function Login() {
           {error && <div className="login-error">{error}</div>}
 
           <button className="login-btn" type="submit" disabled={busy}>
-            {busy ? "Signing in…" : "Sign in"}
+            {busy ? t("Signing in…") : t("Sign in")}
           </button>
         </form>
       </main>
