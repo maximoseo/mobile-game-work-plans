@@ -336,15 +336,37 @@ export default function App() {
     }
 
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
+    // Fleet SSO: a panel-issued fleet_session cookie unlocks the dashboard
+    // (static data view — live rows still require a Supabase session). Kept
+    // separate so a null session event never clobbers a fleet unlock, and an
+    // explicit sign-out (flagged below) is not re-unlocked on reload.
+    let fleetAuthed = false;
+    let sessionSeen = false;
+    const signedOut = () => sessionStorage.getItem("mgwp_signed_out") === "1";
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!mounted) return;
+      sessionSeen = Boolean(data.session);
+      if (data.session) {
+        setAuthed(true);
+        setLoading(false);
+        return;
+      }
+      fleetAuthed = !signedOut()
+        ? await fetch("/api/fleet-session")
+            .then((r) => r.ok)
+            .catch(() => false)
+        : false;
       if (mounted) {
-        setAuthed(Boolean(data.session));
+        // A Supabase sign-in that raced the fleet probe wins.
+        setAuthed(sessionSeen || fleetAuthed);
         setLoading(false);
       }
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) setAuthed(Boolean(session));
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      sessionSeen = Boolean(session);
+      if (event === "SIGNED_IN") sessionStorage.removeItem("mgwp_signed_out");
+      if (mounted) setAuthed(sessionSeen || fleetAuthed);
     });
 
     return () => {
@@ -379,6 +401,9 @@ export default function App() {
   }, [authed]);
 
   async function handleSignOut() {
+    // Suppress the fleet unlock for this tab: the domain cookie belongs to the
+    // panel (deleting it would sign the operator out of every dashboard).
+    sessionStorage.setItem("mgwp_signed_out", "1");
     if (supabase) await supabase.auth.signOut();
     setAuthed(false);
   }
