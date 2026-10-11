@@ -12,5 +12,62 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/((?!api/|_next/|.*\\.[a-z0-9]{1,6}$).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": ".*\\.maximo-seo\\.ai|.*\\.vercel\\.app"
+        }
+      ],
+      "missing": [
+        {
+          "type": "cookie",
+          "key": "fleet_session"
+        },
+        {
+          "type": "query",
+          "key": "app",
+          "value": "android"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*; wv.*"
+        }
+      ],
+      "destination": "https://dashboards-panel.maximo-seo.ai/?mode=live&app=mobile-game-work-plans",
+      "permanent": false
+    },
+    {
+      "source": "/((?!api/|_next/|.*\\.[a-z0-9]{1,6}$).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": ".*\\.maximo-seo\\.ai|.*\\.vercel\\.app"
+        },
+        {
+          "type": "header",
+          "key": "sec-fetch-dest",
+          "value": "document"
+        }
+      ],
+      "missing": [
+        {
+          "type": "query",
+          "key": "app",
+          "value": "android"
+        },
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*; wv.*"
+        }
+      ],
+      "destination": "https://dashboards-panel.maximo-seo.ai/?mode=live&app=mobile-game-work-plans",
+      "permanent": false
+    }
   ]
 }
