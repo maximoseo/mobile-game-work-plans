@@ -31,7 +31,7 @@ export const priorityList: PriorityItem[] = [
 
 export const firstProject = {
   title: "One-Tap Time Heist",
-  genre: "Puzzle, strategy, adventure",
+  genre: "Puzzle",
   coreGameplay:
     "The player controls a thief who must complete a heist in a limited number of moves. Once per level, the player can rewind time to undo mistakes and try a new strategy.",
   features: [
@@ -60,7 +60,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "pocket-planet-keeper",
     title: "Pocket Planet Keeper",
-    genre: "Simulation / god-game",
+    genre: "Simulation",
     coreGameplay:
       "Grow a tiny planet by balancing nature, cities, weather, and population. Every choice permanently changes the world, creating a persistent, evolving ecosystem.",
     features: [
@@ -85,7 +85,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "one-tap-time-heist",
     title: "One-Tap Time Heist",
-    genre: "Puzzle / strategy / adventure",
+    genre: "Puzzle",
     coreGameplay:
       "Control a thief completing a heist in a limited number of moves. Once per level, rewind time to undo mistakes and try a new strategy.",
     features: [
@@ -112,7 +112,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "ghost-train-tycoon",
     title: "Ghost Train Tycoon",
-    genre: "Tycoon / management",
+    genre: "Tycoon",
     coreGameplay:
       "Build and manage a supernatural railway. Transport ghosts, upgrade haunted stations, and avoid angry spirits that disrupt service.",
     features: [
@@ -137,7 +137,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "kitchen-chaos-delivery",
     title: "Kitchen Chaos Delivery",
-    genre: "Arcade / time-management",
+    genre: "Arcade",
     coreGameplay:
       "Prepare meals while riding through unpredictable neighborhoods. Combine ingredients quickly and deliver orders before time runs out.",
     features: [
@@ -162,7 +162,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "tiny-mech-arena",
     title: "Tiny Mech Arena",
-    genre: "Action / builder",
+    genre: "Action",
     coreGameplay:
       "Collect household objects and build miniature robots that battle inside bedrooms, kitchens, garages, and other small environments.",
     features: [
@@ -187,7 +187,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "swipe-knight",
     title: "Swipe Knight",
-    genre: "Action roguelike",
+    genre: "Roguelite",
     coreGameplay:
       "A simple action roguelike where swiping controls attacks, dodges, and movement. Learn enemy patterns and defeat increasingly difficult bosses.",
     features: [
@@ -212,7 +212,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "lost-signal",
     title: "Lost Signal",
-    genre: "Mystery / narrative",
+    genre: "Narrative",
     coreGameplay:
       "A mystery game told through text messages, radio signals, photos, and incoming calls. Players solve a disappearance by collecting clues.",
     features: [
@@ -237,7 +237,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "cloud-shepherd",
     title: "Cloud Shepherd",
-    genre: "Casual / puzzle",
+    genre: "Casual",
     coreGameplay:
       "Guide clouds across the sky to create rain, protect crops, and stop storms from damaging villages.",
     features: [
@@ -262,7 +262,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "monster-hotel",
     title: "Monster Hotel",
-    genre: "Management / simulation",
+    genre: "Simulation",
     coreGameplay:
       "Run a hotel for monsters. Design rooms around each creature's needs, serve strange food, and manage difficult guests.",
     features: [
@@ -287,7 +287,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "reverse-tower-defense",
     title: "Reverse Tower Defense",
-    genre: "Strategy / puzzle",
+    genre: "Strategy",
     coreGameplay:
       "Instead of defending a base, control waves of enemies and find the best path through defensive towers.",
     features: [
@@ -312,7 +312,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "street-food-empire",
     title: "Street Food Empire",
-    genre: "Tycoon / simulation",
+    genre: "Tycoon",
     coreGameplay:
       "Start with one food cart and expand into a worldwide restaurant business. Discover local recipes and compete with rival vendors.",
     features: [
@@ -337,7 +337,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "shadow-garden",
     title: "Shadow Garden",
-    genre: "Puzzle / environmental",
+    genre: "Puzzle",
     coreGameplay:
       "Grow plants only in areas touched by darkness. Move lamps, manipulate shadows, and solve environmental puzzles.",
     features: [
@@ -362,7 +362,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "idle-archaeologist",
     title: "Idle Archaeologist",
-    genre: "Idle / incremental",
+    genre: "Casual",
     coreGameplay:
       "Send teams into ancient ruins, uncover artifacts, restore them, and use discoveries to unlock new civilizations.",
     features: [
@@ -387,7 +387,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "swipe-soccer-manager",
     title: "Swipe Soccer Manager",
-    genre: "Sports / strategy",
+    genre: "Strategy",
     coreGameplay:
       "Control an entire soccer match using quick swipe commands instead of direct player movement. Make tactical decisions in real time.",
     features: [
@@ -412,7 +412,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "animal-escape-room",
     title: "Animal Escape Room",
-    genre: "Puzzle / adventure",
+    genre: "Puzzle",
     coreGameplay:
       "Different animals use unique abilities to escape rooms. A mouse squeezes through gaps, a parrot copies sounds, and a cat climbs walls.",
     features: [
@@ -437,7 +437,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "swarm-survivor",
     title: "Swarm Survivor",
-    genre: "Bullet-heaven / survival roguelite",
+    genre: "Roguelite",
     coreGameplay:
       "Steer a lone hero through escalating monster swarms while attacks fire automatically. Each level-up offers three upgrade picks; synergies create a unique build every run.",
     features: [
@@ -462,7 +462,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "deck-paws",
     title: "Deck Paws",
-    genre: "Deckbuilder roguelite",
+    genre: "Roguelite",
     coreGameplay:
       "Build a deck of street-cat cards and score points through combo synergies each round. Between rounds, draft one of three new cats or relics; boss rounds bend the rules.",
     features: [
@@ -487,7 +487,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "merge-motel",
     title: "Merge Motel",
-    genre: "Merge-2 / renovation",
+    genre: "Casual",
     coreGameplay:
       "Merge clutter items on a board to produce furniture and supplies, then spend them renovating rooms of a run-down roadside motel and fulfilling guest requests.",
     features: [
@@ -512,7 +512,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "mila-yomit",
     title: "Mila Yomit",
-    genre: "Daily word puzzle (Hebrew)",
+    genre: "Puzzle",
     coreGameplay:
       "One shared five-letter Hebrew word per day, six guesses, colored-tile feedback. Results share as a spoiler-free emoji grid to WhatsApp and other apps.",
     features: [
@@ -537,7 +537,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "night-shift",
     title: "Night Shift",
-    genre: "Horror-lite survival",
+    genre: "Horror",
     coreGameplay:
       "Survive night shifts guarding a strange facility: watch camera feeds, shut doors, and ration a draining power budget until 6 AM while intruder AI escalates.",
     features: [
@@ -562,7 +562,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "hook-and-chill",
     title: "Hook & Chill",
-    genre: "Zen fishing collection",
+    genre: "Casual",
     coreGameplay:
       "Cast a line, play a short timing minigame to reel fish in, and grow a personal aquarium that keeps filling even while the app is closed.",
     features: [
@@ -587,7 +587,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "draw-bridge-hero",
     title: "Draw Bridge Hero",
-    genre: "Drawing physics puzzle",
+    genre: "Puzzle",
     coreGameplay:
       "Draw a single stroke - a bridge, ramp, or shield - then release and watch physics play out: the hero crosses, collects, or tumbles in a funny fail.",
     features: [
@@ -612,7 +612,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "ghost-neighbors",
     title: "Ghost Neighbors",
-    genre: "Async social deduction",
+    genre: "Narrative",
     coreGameplay:
       "Five-minute asynchronous rounds: one neighbor is secretly a ghost. Players submit actions and vote on behavioral tells across turns that arrive by push notification.",
     features: [
@@ -637,7 +637,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "micro-golf",
     title: "Micro Golf",
-    genre: "Trick-shot physics golf",
+    genre: "Arcade",
     coreGameplay:
       "One-hand drag-aim-release putting through absurd obstacle holes. Each hole is a bite-size physics puzzle scored on a three-star par.",
     features: [
@@ -662,7 +662,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "pinball-forge",
     title: "Pinball Forge",
-    genre: "Pinball + table building",
+    genre: "Arcade",
     coreGameplay:
       "Classic two-flipper pinball on handcrafted tables; winnings unlock bumpers, ramps, and rails that players forge into custom tables shared via codes.",
     features: [
@@ -687,7 +687,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "chess-sprint",
     title: "Chess Sprint",
-    genre: "Daily chess tactics",
+    genre: "Puzzle",
     coreGameplay:
       "Solve a mate-in-N position against a 30-second clock. One curated puzzle a day plus a sprint mode; rating and streaks track progress.",
     features: [
@@ -712,7 +712,7 @@ export const gamePlans: GamePlan[] = [
   {
     id: "skyport-snack",
     title: "Skyport Snack",
-    genre: "One-touch cooking / cozy service",
+    genre: "Casual",
     coreGameplay:
       "Run a floating food stall for sky-travelers: tap to prep, assemble, and serve orders at a relaxed pace, upgrade the stall, and unlock new recipes across the day cycle.",
     features: [
