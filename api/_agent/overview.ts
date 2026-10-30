@@ -31,7 +31,7 @@ export function computeOverviewStatus(input: { total: number | null; freshness: 
   return "live";
 }
 
-export function summarizePlans(rows: Row[], total: number | null, nowMs: number, truncated: boolean) {
+export function summarizePlans(rows: Row[], total: number | null, nowMs: number, truncated: boolean, freshnessCandidates: unknown[] = []) {
   const genres = new Set<string>();
   const buildOrder: { id: string; title: string; rank: number; genre: string | null }[] = [];
   let milestones = 0;
@@ -73,6 +73,15 @@ export function summarizePlans(rows: Row[], total: number | null, nowMs: number,
     }
   }
 
+  for (const value of freshnessCandidates) {
+    if (typeof value !== "string") continue;
+    const parsed = Date.parse(value);
+    if (Number.isFinite(parsed) && parsed > latestMs) {
+      latestMs = parsed;
+      latestAt = value;
+    }
+  }
+
   buildOrder.sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
   const freshness = [freshnessItem(latestAt, nowMs)];
   const status = computeOverviewStatus({ total, freshness, truncated });
@@ -105,15 +114,25 @@ export function overviewRoute(db: () => Db): Route {
     nativeKind: "overview",
     input: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
-      const { data, error, count } = await db().from("mgwp_plans")
-        .select("id,title,genre,work_plan,priority_rank,created_at,updated_at", { count: "exact" })
-        .order("updated_at", { ascending: false, nullsFirst: false })
-        .limit(MAX_ROWS + 1);
-      if (error) throw new RouteError(502, "upstream_error", error.message);
-      const rows = ((data as Row[] | null) ?? []);
-      const total = typeof count === "number" ? count : null;
+      const [result, latestUpdated, latestCreated] = await Promise.all([
+        db().from("mgwp_plans")
+          .select("id,title,genre,work_plan,priority_rank,created_at,updated_at", { count: "exact" })
+          .limit(MAX_ROWS + 1),
+        db().from("mgwp_plans").select("updated_at").or("updated_at.not.is.null")
+          .order("updated_at", { ascending: false, nullsFirst: false }).limit(1),
+        db().from("mgwp_plans").select("created_at")
+          .order("created_at", { ascending: false, nullsFirst: false }).limit(1),
+      ]);
+      for (const query of [result, latestUpdated, latestCreated]) {
+        if (query.error) throw new RouteError(502, "upstream_error", query.error.message);
+      }
+      const rows = ((result.data as Row[] | null) ?? []);
+      const total = typeof result.count === "number" ? result.count : null;
       const truncated = rows.length > MAX_ROWS || (total !== null && total > Math.min(rows.length, MAX_ROWS));
-      return summarizePlans(rows.slice(0, MAX_ROWS), total, Date.now(), truncated);
+      const freshnessCandidates = [latestUpdated.data, latestCreated.data]
+        .flatMap((data) => (data as Row[] | null) ?? [])
+        .flatMap((row) => [row.updated_at, row.created_at]);
+      return summarizePlans(rows.slice(0, MAX_ROWS), total, Date.now(), truncated, freshnessCandidates);
     },
   };
 }

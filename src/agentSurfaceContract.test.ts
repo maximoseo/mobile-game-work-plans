@@ -54,6 +54,7 @@ describe("native plans overview contract", () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: "2026-10-03T14:58:38Z" };
     const query = {
       select: () => query,
+      or: () => query,
       order: () => query,
       limit: () => Promise.resolve({ data: [row], error: null, count: 2 }),
     };
@@ -84,22 +85,35 @@ describe("native plans overview contract", () => {
     ]));
   });
 
+  it("keeps freshness independent when newest created-only rows fall outside the aggregate cap", () => {
+    const now = Date.parse("2026-10-30T15:00:00Z");
+    const result = summarizePlans([
+      { id: "old", title: "Old", updated_at: "2026-01-01T00:00:00Z", created_at: "2026-01-01T00:00:00Z" },
+    ], 5001, now, true, ["2026-10-30T14:00:00Z"]);
+    expect(result.status).toBe("partial");
+    expect(result.freshness[0].latest_at).toBe("2026-10-30T14:00:00Z");
+    expect(result.freshness[0].stale).toBe(false);
+    expect(result.attention).not.toContainEqual({ kind: "plans_catalog_stale", count: 5001, entity: "plans" });
+  });
+
   it("reads newest producer timestamps first so a capped scan cannot invent staleness", async () => {
-    let orderArgs: unknown[] = [];
+    const orderColumns: string[] = [];
     const query = {
       select: () => query,
-      order: (...args: unknown[]) => { orderArgs = args; return query; },
+      or: () => query,
+      order: (column: string) => { orderColumns.push(column); return query; },
       limit: () => Promise.resolve({ data: [], error: null, count: 0 }),
     };
     const db = () => ({ from: () => query }) as unknown as Db;
     await overviewRoute(db).handler({}, { keyId: "test", surface: "rest", origin: "https://example.test" });
-    expect(orderArgs).toEqual(["updated_at", { ascending: false, nullsFirst: false }]);
+    expect(orderColumns).toEqual(["updated_at", "created_at"]);
   });
 
   it("serves the aggregate through the authenticated route handler", async () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: new Date().toISOString() };
     const query = {
       select: () => query,
+      or: () => query,
       order: () => query,
       limit: () => Promise.resolve({ data: [row], error: null, count: 1 }),
     };
