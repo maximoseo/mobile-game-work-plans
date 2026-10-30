@@ -50,6 +50,20 @@ describe("native plans overview contract", () => {
     expect(result.build_order).toEqual([{ id: "a", title: "Alpha", rank: 2, genre: "Puzzle" }]);
   });
 
+  it("marks the aggregate partial when PostgREST returns fewer rows than the authoritative count", async () => {
+    const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: "2026-10-03T14:58:38Z" };
+    const query = {
+      select: () => query,
+      limit: () => Promise.resolve({ data: [row], error: null, count: 2 }),
+    };
+    const db = () => ({ from: () => query }) as unknown as Db;
+    const result = await overviewRoute(db).handler({}, { keyId: "test", surface: "rest", origin: "https://example.test" }) as any;
+    expect(result.status).toBe("partial");
+    expect(result.counts.plans).toBe(2);
+    expect(result.truncated_sources).toEqual(["plans"]);
+    expect(result.attention).toContainEqual({ kind: "overview_aggregate_truncated", count: null, entity: "plans" });
+  });
+
   it("serves the aggregate through the authenticated route handler", async () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: "2026-10-03T14:58:38Z" };
     const query = {

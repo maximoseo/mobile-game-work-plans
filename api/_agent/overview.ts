@@ -108,7 +108,9 @@ export function overviewRoute(db: () => Db): Route {
         .limit(MAX_ROWS + 1);
       if (error) throw new RouteError(502, "upstream_error", error.message);
       const rows = ((data as Row[] | null) ?? []);
-      return summarizePlans(rows.slice(0, MAX_ROWS), typeof count === "number" ? count : null, Date.now(), rows.length > MAX_ROWS);
+      const total = typeof count === "number" ? count : null;
+      const truncated = rows.length > MAX_ROWS || (total !== null && total > Math.min(rows.length, MAX_ROWS));
+      return summarizePlans(rows.slice(0, MAX_ROWS), total, Date.now(), truncated);
     },
   };
 }
