@@ -64,6 +64,12 @@ describe("native plans overview contract", () => {
     expect(result.attention).toContainEqual({ kind: "overview_aggregate_truncated", count: null, entity: "plans" });
   });
 
+  it.each([{ workPlan: [{}] }, { workPlan: [{ tasks: null }] }, { workPlan: [{ tasks: [] }] }, { workPlan: [null] }])("flags a work plan without usable tasks: $workPlan", ({ workPlan }) => {
+    const result = summarizePlans([{ id: "bad", title: "Bad", work_plan: workPlan }], 1, Date.now(), false);
+    expect(result.counts.milestones).toBe(0);
+    expect(result.attention).toContainEqual({ kind: "plans_missing_work_plan", count: 1, entity: "plans" });
+  });
+
   it("keeps stale attention visible when the aggregate is also partial", () => {
     const result = summarizePlans([
       { id: "old", title: "Old", priority_rank: 0, work_plan: [], updated_at: "2026-01-01T00:00:00Z" },

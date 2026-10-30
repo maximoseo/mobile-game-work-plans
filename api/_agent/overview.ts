@@ -51,14 +51,13 @@ export function summarizePlans(rows: Row[], total: number | null, nowMs: number,
       missingPriority += 1;
     }
     const validMilestones = Array.isArray(row.work_plan)
-      ? row.work_plan.filter((milestone): milestone is Row => Boolean(milestone) && typeof milestone === "object" && !Array.isArray(milestone))
+      ? row.work_plan.filter((milestone): milestone is Row => Boolean(milestone) && typeof milestone === "object" && !Array.isArray(milestone)
+        && Array.isArray((milestone as Row).tasks) && ((milestone as Row).tasks as unknown[]).some((task) => typeof task === "string" && task.trim().length > 0))
       : [];
     if (validMilestones.length > 0) {
       milestones += validMilestones.length;
       for (const milestone of validMilestones) {
-        if (Array.isArray(milestone.tasks)) {
-          tasks += milestone.tasks.filter((task) => typeof task === "string").length;
-        }
+        tasks += (milestone.tasks as unknown[]).filter((task) => typeof task === "string" && task.trim().length > 0).length;
       }
     } else {
       missingWorkPlan += 1;
