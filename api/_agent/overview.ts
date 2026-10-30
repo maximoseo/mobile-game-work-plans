@@ -44,8 +44,8 @@ export function summarizePlans(rows: Row[], total: number | null, nowMs: number,
   for (const row of rows) {
     const genre = typeof row.genre === "string" && row.genre.trim() ? row.genre : null;
     if (genre) genres.add(genre);
-    const rank = typeof row.priority_rank === "number" ? row.priority_rank : Number(row.priority_rank);
-    if (Number.isFinite(rank) && rank > 0) {
+    const rank = row.priority_rank === null || row.priority_rank === undefined || row.priority_rank === "" ? Number.NaN : Number(row.priority_rank);
+    if (Number.isFinite(rank) && rank >= 0) {
       buildOrder.push({ id: String(row.id ?? ""), title: String(row.title ?? "Untitled plan"), rank, genre });
     } else {
       missingPriority += 1;
@@ -80,7 +80,7 @@ export function summarizePlans(rows: Row[], total: number | null, nowMs: number,
   const attention = [
     { kind: "plans_missing_priority", count: missingPriority, entity: "plans" },
     { kind: "plans_missing_work_plan", count: missingWorkPlan, entity: "plans" },
-    ...(status === "stale" ? [{ kind: "plans_catalog_stale", count: total, entity: "plans" }] : []),
+    ...(freshness.some((item) => item.stale) ? [{ kind: "plans_catalog_stale", count: total, entity: "plans" }] : []),
     ...(truncated ? [{ kind: "overview_aggregate_truncated", count: null, entity: "plans" }] : []),
   ].filter((item) => item.count === null || (typeof item.count === "number" && item.count > 0));
 

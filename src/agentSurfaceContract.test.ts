@@ -64,6 +64,19 @@ describe("native plans overview contract", () => {
     expect(result.attention).toContainEqual({ kind: "overview_aggregate_truncated", count: null, entity: "plans" });
   });
 
+  it("keeps stale attention visible when the aggregate is also partial", () => {
+    const result = summarizePlans([
+      { id: "old", title: "Old", priority_rank: 0, work_plan: [], updated_at: "2026-01-01T00:00:00Z" },
+    ], 2, Date.parse("2026-10-30T15:00:00Z"), true);
+    expect(result.status).toBe("partial");
+    expect(result.counts.ranked).toBe(1);
+    expect(result.build_order[0].rank).toBe(0);
+    expect(result.attention).toEqual(expect.arrayContaining([
+      { kind: "plans_catalog_stale", count: 2, entity: "plans" },
+      { kind: "overview_aggregate_truncated", count: null, entity: "plans" },
+    ]));
+  });
+
   it("serves the aggregate through the authenticated route handler", async () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: new Date().toISOString() };
     const query = {
