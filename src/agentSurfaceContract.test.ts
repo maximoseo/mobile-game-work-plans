@@ -54,6 +54,7 @@ describe("native plans overview contract", () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: "2026-10-03T14:58:38Z" };
     const query = {
       select: () => query,
+      order: () => query,
       limit: () => Promise.resolve({ data: [row], error: null, count: 2 }),
     };
     const db = () => ({ from: () => query }) as unknown as Db;
@@ -83,10 +84,23 @@ describe("native plans overview contract", () => {
     ]));
   });
 
+  it("reads newest producer timestamps first so a capped scan cannot invent staleness", async () => {
+    let orderArgs: unknown[] = [];
+    const query = {
+      select: () => query,
+      order: (...args: unknown[]) => { orderArgs = args; return query; },
+      limit: () => Promise.resolve({ data: [], error: null, count: 0 }),
+    };
+    const db = () => ({ from: () => query }) as unknown as Db;
+    await overviewRoute(db).handler({}, { keyId: "test", surface: "rest", origin: "https://example.test" });
+    expect(orderArgs).toEqual(["updated_at", { ascending: false, nullsFirst: false }]);
+  });
+
   it("serves the aggregate through the authenticated route handler", async () => {
     const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: new Date().toISOString() };
     const query = {
       select: () => query,
+      order: () => query,
       limit: () => Promise.resolve({ data: [row], error: null, count: 1 }),
     };
     const db = () => ({ from: (table: string) => {

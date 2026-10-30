@@ -107,6 +107,7 @@ export function overviewRoute(db: () => Db): Route {
     handler: async () => {
       const { data, error, count } = await db().from("mgwp_plans")
         .select("id,title,genre,work_plan,priority_rank,created_at,updated_at", { count: "exact" })
+        .order("updated_at", { ascending: false, nullsFirst: false })
         .limit(MAX_ROWS + 1);
       if (error) throw new RouteError(502, "upstream_error", error.message);
       const rows = ((data as Row[] | null) ?? []);
