@@ -1,4 +1,5 @@
 import { entityRoutes } from "./entities.js";
+import { overviewRoute } from "./overview.js";
 import { postgrestDb } from "./postgrest.js";
 import { RouteError } from "./types.js";
 import type { AppInfo, Route } from "./types.js";
@@ -30,4 +31,5 @@ const db = () => postgrestDb(() => need("VITE_SUPABASE_URL"), () => need("SUPABA
 
 export const routes: Route[] = [
   ...entityRoutes(db, { entity: "plans", table: "mgwp_plans", summary: "game work plans (title, genre, core gameplay, features, audience, monetization, work plan, priority rank)", orderBy: "priority_rank", ascending: true, searchColumns: ["title", "genre", "core_gameplay"], filters: ["genre"], groupBy: ["genre"] }),
+  overviewRoute(db),
 ];

@@ -19,6 +19,7 @@ export function buildOpenApi(app: AppInfo, routes: Route[], origin: string): Rec
       description: r.description ?? r.summary,
       tags: [r.write ? "write" : "read"],
       "x-write": Boolean(r.write),
+      ...(r.nativeKind ? { "x-native-kind": r.nativeKind } : {}),
       responses: {
         "200": { description: "OK", content: { "application/json": { schema: r.output ?? { type: "object" } } } },
         "400": { description: "Invalid input, or a write called without confirm: true" },

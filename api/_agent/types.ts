@@ -44,6 +44,8 @@ export type Route = {
   description?: string;
   /** write tools require { confirm: true } and are marked x-write in OpenAPI */
   write?: boolean;
+  /** panel-native rendering hint, emitted as x-native-kind (not an entity) */
+  nativeKind?: string;
   input?: ObjectSchema;
   output?: JsonSchema;
   handler: RouteHandler;
