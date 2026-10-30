@@ -39,7 +39,7 @@ describe("native plans overview contract", () => {
     const now = Date.parse("2026-10-30T15:00:00Z");
     const result = summarizePlans([
       { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 2, work_plan: [{ tasks: ["one", "two"] }], updated_at: "2026-10-03T14:58:38Z" },
-      { id: "b", title: "Beta", genre: "Puzzle", priority_rank: null, work_plan: "corrupt", created_at: "2026-10-02T00:00:00Z" },
+      { id: "b", title: "Beta", genre: "Puzzle", priority_rank: null, work_plan: [null], created_at: "2026-10-02T00:00:00Z" },
     ], 2, now, false);
     expect(result.status).toBe("live");
     expect(result.counts).toEqual({ plans: 2, genres: 1, ranked: 1, milestones: 1, tasks: 2 });
@@ -65,7 +65,7 @@ describe("native plans overview contract", () => {
   });
 
   it("serves the aggregate through the authenticated route handler", async () => {
-    const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: "2026-10-03T14:58:38Z" };
+    const row = { id: "a", title: "Alpha", genre: "Puzzle", priority_rank: 1, work_plan: [{ tasks: ["one"] }], updated_at: new Date().toISOString() };
     const query = {
       select: () => query,
       limit: () => Promise.resolve({ data: [row], error: null, count: 1 }),
